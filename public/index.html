@@ -143,7 +143,14 @@ const DEFAULT_DB={students:[],fees:[],payments:[],school:{name:'Nama Sekolah',ye
 const STORAGE_KEY='spmb_payment_manual_v1';
 function load(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');return saved&&typeof saved==='object'?Object.assign(structuredClone(DEFAULT_DB),saved):structuredClone(DEFAULT_DB)}catch(e){return structuredClone(DEFAULT_DB)}}
 let db=load();
-const firebaseConfig={apiKey:'AIzaSyAtLYP0zULrWBus904AV8sOlicEn_oS1Ys',authDomain:'spmb-almadinah.firebaseapp.com',projectId:'spmb-almadinah',storageBucket:'spmb-almadinah.firebasestorage.app',messagingSenderId:'511320788796',appId:'1:511320788796:web:9c007874f08cd610ad1839'};
+const firebaseConfig = {
+  apiKey: "AIzaSyAtLYPOzULrWBus904AV8sOIicEn_oS1Ys",
+  authDomain: "spmb-almadinah.firebaseapp.com",
+  projectId: "spmb-almadinah",
+  storageBucket: "spmb-almadinah.firebasestorage.app",
+  messagingSenderId: "511320788796",
+  appId: "1:511320788796:web:9c007874f08cd610ad1839"
+};
 let firebaseApp=null,auth=null,firestore=null,currentUser=null,cloudReady=false,cloudSaveTimer=null;
 try{firebaseApp=firebase.initializeApp(firebaseConfig);auth=firebase.auth();firestore=firebase.firestore();}catch(e){console.error('Firebase init:',e)}
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){alert('Penyimpanan browser penuh atau tidak tersedia. Ekspor Backup untuk menjaga data.');}if(currentUser&&cloudReady){clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(saveCloud,500);}}
