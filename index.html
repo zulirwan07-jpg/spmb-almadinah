@@ -57,6 +57,70 @@
 .admin-student-accordion>summary h3{margin:0}
 .admin-student-accordion .accordion-content{padding-top:14px}
 </style>
+<style>
+/* Dashboard ringkas: seluruh ringkasan lebih mudah terlihat sekaligus */
+#page-dashboard .intro{margin:4px 0 10px}
+#page-dashboard .intro h1{font-size:22px;margin:0 0 4px}
+#page-dashboard .intro p{font-size:13px;margin:0}
+#page-dashboard #syncNotice{padding:9px 12px;margin:10px 0;font-size:12px}
+#page-dashboard .dashboard-level-group{margin:10px 0 12px}
+#page-dashboard .dashboard-level-group h3{font-size:15px;margin:0 0 7px}
+#page-dashboard .dashboard-student-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+#page-dashboard .dashboard-level-group:last-child .dashboard-student-cards{grid-template-columns:repeat(5,minmax(0,1fr))}
+#page-dashboard .dashboard-student-cards .card{min-height:0;padding:10px 12px;border-radius:10px}
+#page-dashboard .dashboard-student-cards .card .k{font-size:11px;line-height:1.25}
+#page-dashboard .dashboard-student-cards .card strong{font-size:20px;margin-top:4px}
+@media(max-width:850px){
+ #page-dashboard .dashboard-level-group:last-child .dashboard-student-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ #page-dashboard .intro h1{font-size:19px}
+ #page-dashboard .dashboard-student-cards,
+ #page-dashboard .dashboard-level-group:last-child .dashboard-student-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-dashboard .dashboard-student-cards .card{padding:9px}
+ #page-dashboard .dashboard-student-cards .card strong{font-size:18px}
+}
+
+/* Warna berbeda untuk setiap kartu ringkasan Dashboard */
+#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(1){
+  background:#e7f3e5;border-color:#b9d9b3
+}
+#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(2){
+  background:#e6f2ff;border-color:#b9d8f5
+}
+#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(3){
+  background:#fff2d9;border-color:#f2d69a
+}
+#page-dashboard .dashboard-level-group:nth-of-type(2) .dashboard-student-cards .card:nth-child(1){
+  background:#e9e5ff;border-color:#c9c0f4
+}
+#page-dashboard .dashboard-level-group:nth-of-type(2) .dashboard-student-cards .card:nth-child(2){
+  background:#dff5f2;border-color:#afe0d8
+}
+#page-dashboard .dashboard-level-group:nth-of-type(2) .dashboard-student-cards .card:nth-child(3){
+  background:#ffe8ed;border-color:#f4c0cc
+}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(1){
+  background:#ffe5e5;border-color:#f3baba
+}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(2){
+  background:#fff0d8;border-color:#f0d09b
+}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(3){
+  background:#e2f4e5;border-color:#b8dbbf
+}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(4){
+  background:#e7edff;border-color:#c0cdf5
+}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(5){
+  background:#f1e7ff;border-color:#d7c3f2
+}
+#page-dashboard .dashboard-student-cards .card{
+  border-width:1px;border-style:solid;box-shadow:0 2px 7px #2443230a
+}
+#page-dashboard .dashboard-student-cards .card .k{color:#425b4b;font-weight:600}
+#page-dashboard .dashboard-student-cards .card strong{color:#245c35}
+</style>
 </head><body>
 <div class="app"><aside class="sidebar"><div class="brand"><div class="logo">▦</div><div><b>DATA SISWA SPMB</b><small>Administrasi sekolah</small></div></div>
 <div class="navlabel">MENU UTAMA</div><nav class="nav">
@@ -73,9 +137,9 @@
 <button data-page="students-sd-registration">♙ &nbsp; Calon Siswa SD</button>
 </div>
 
-<button data-page="settings">⚙ &nbsp; Pengaturan & Sinkronisasi</button>
+<button data-page="settings">⚙ &nbsp; Pengaturan Sistem</button>
 <button data-page="admin">⚙ &nbsp; Admin</button>
-</nav></aside><main class="main"><header class="top"><h2 id="topTitle">Dashboard Data Siswa</h2><span id="cloudStatus" class="muted" style="font-size:12px;margin-left:auto;margin-right:12px">Menghubungkan ke Backendless...</span><span class="tag">TA 2026/2027 · DATABASE ONLINE</span></header><div class="content">
+</nav></aside><main class="main"><header class="top"><h2 id="topTitle">Dashboard Data Siswa</h2><span id="cloudStatus" class="muted" style="font-size:12px;margin-left:auto;margin-right:12px">Menghubungkan ke Backendless...</span><span class="tag" id="schoolYearBadge">TA 2026/2027 · DATABASE ONLINE</span><button type="button" class="btn small" style="margin-left:8px;white-space:nowrap" onclick="openYearEditor()">✎ Edit Tahun</button></header><div class="content">
 <section class="page active" id="page-dashboard"><div class="intro"><h1>Penerimaan SPMB SD DAN TK</h1><p>Ringkasan penerimaan pembayaran calon murid baru.</p></div><div class="notice" id="syncNotice">Menghubungkan ke database online Backendless...</div><div class="dashboard-level-group">
 <h3>Rekapitulasi Calon Siswa TK</h3>
 <div class="cards dashboard-student-cards">
@@ -99,14 +163,7 @@
 <div class="card"><span class="k">Total Ditunda</span><strong id="dDeferred">0</strong></div>
 <div class="card"><span class="k">Total Lulus</span><strong id="dPassed">0</strong></div>
 </div></div></section>
-<section class="page" id="page-students"><div class="intro"><h1>Data Calon Siswa</h1><p>Daftar hanya menampilkan nama siswa dan nama orang tua dari data SPMB yang diimpor.</p></div><div class="panel"><div class="toolbar">
-<button class="btn" onclick="openAddStudent()">＋ Tambah Nama Siswa</button>
-<button class="btn secondary" onclick="downloadStudentTemplate()">Templet Excel</button>
-<button class="btn" onclick="exportStudentsExcel()">Ekspor Excel</button>
-<button class="btn yellow" onclick="$('studentExcelFile').click()">Impor Excel</button>
-
-<input id="studentExcelFile" type="file" accept=".xlsx,.xls,.csv" class="hide" onchange="importStudentsExcel(event)">
-</div><div class="toolbar"><input id="studentSearch" placeholder="Cari nama siswa atau orang tua..." oninput="renderStudents()"><span id="studentCount" class="muted"></span></div><div class="tablewrap"><table><thead><tr><th>Tanggal Masuk</th><th>No.</th><th>Nama Siswa</th><th>L/P</th><th>Nama Orang Tua</th><th id="studentActionHeader">Aksi</th><th id="studentOfficerHeader">Petugas</th></tr></thead><tbody id="studentRows"></tbody></table></div></div></section>
+<section class="page" id="page-students"><div class="intro"><h1>Data Calon Siswa</h1><p>Daftar hanya menampilkan nama siswa dan nama orang tua dari data SPMB yang diimpor.</p></div><div class="panel"><div class="toolbar"><input id="studentSearch" placeholder="Cari nama siswa atau orang tua..." oninput="renderStudents()"><span id="studentCount" class="muted"></span></div><div class="tablewrap"><table><thead><tr><th>Tanggal Masuk</th><th>No.</th><th>Nama Siswa</th><th>L/P</th><th>Nama Orang Tua</th><th id="studentActionHeader">Aksi</th><th id="studentOfficerHeader">Petugas</th></tr></thead><tbody id="studentRows"></tbody></table></div></div></section>
 
 
 
@@ -118,24 +175,24 @@
 <div class="intro"><h1>Admin</h1><p>Kontrol akses dan tampilan seluruh menu aplikasi.</p></div>
 <div class="panel" id="adminLoginPanel"><h3>Login Admin</h3><div class="toolbar"><input id="adminPasswordInput" type="password" placeholder="Masukkan password admin"><button class="btn" onclick="adminLogin()">Masuk</button></div><p class="muted">Password awal: 123456. Silakan ubah setelah login pertama.</p></div>
 <div id="adminControlPanel" style="display:none">
-<details class="panel admin-student-accordion"><summary><h3>Manajemen Edit dan Hapus Siswa TK</h3></summary><div class="accordion-content"><p class="muted">Kelola perubahan dan penghapusan data calon siswa jenjang TK.</p><div class="toolbar"><input id="adminStudentSearchTK" placeholder="Cari nama siswa TK atau orang tua..." oninput="renderAdminStudentActions('TK')"><button class="btn red" type="button" onclick="deleteAllStudentsByLevel('TK')">Hapus Semua Calon Siswa TK</button></div><div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama Siswa</th><th>Nama Orang Tua</th><th>Aksi</th></tr></thead><tbody id="adminStudentRowsTK"></tbody></table></div></div></details>
-<details class="panel admin-student-accordion"><summary><h3>Manajemen Edit dan Hapus Siswa SD</h3></summary><div class="accordion-content"><p class="muted">Kelola perubahan dan penghapusan data calon siswa jenjang SD.</p><div class="toolbar"><input id="adminStudentSearchSD" placeholder="Cari nama siswa SD atau orang tua..." oninput="renderAdminStudentActions('SD')"><button class="btn red" type="button" onclick="deleteAllStudentsByLevel('SD')">Hapus Semua Calon Siswa SD</button></div><div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama Siswa</th><th>Nama Orang Tua</th><th>Aksi</th></tr></thead><tbody id="adminStudentRowsSD"></tbody></table></div></div></details><div class="panel"><h3>Cetak Rekapitulasi Berdasarkan Status</h3><p class="muted">Cetak daftar calon siswa berdasarkan status penerimaan atau pembayaran.</p><div class="toolbar"><label class="field">Jenjang<select id="adminPrintLevel"><option value="SEMUA">Semua Jenjang</option><option value="TK">TK</option><option value="SD">SD</option></select></label><label class="field">Jenis Status<select id="adminPrintType" onchange="updateAdminPrintStatusOptions()"><option value="penerimaan">Status Penerimaan</option><option value="pembayaran">Status Pembayaran</option></select></label><label class="field">Status<select id="adminPrintStatus"><option value="Lulus">Lulus</option><option value="Ditunda">Ditunda</option></select></label><button class="btn" type="button" onclick="printAdminStatusRecap()">Cetak Daftar</button></div></div>
+<details class="panel admin-student-accordion"><summary><h3>Manajemen Edit dan Hapus Siswa TK</h3></summary><div class="accordion-content"><p class="muted">Kelola perubahan, penambahan, dan penghapusan data calon siswa jenjang TK.</p><div class="toolbar"><button class="btn" type="button" onclick="prepareStudentAdmin('TK');openAddStudent()">＋ Tambah Nama Siswa TK</button><button class="btn secondary" type="button" onclick="prepareStudentAdmin('TK');downloadStudentTemplate()">Templet Excel TK</button><button class="btn" type="button" onclick="prepareStudentAdmin('TK');exportStudentsExcel()">Ekspor Excel TK</button><button class="btn yellow" type="button" onclick="prepareStudentAdmin('TK');$('studentExcelFileTK').click()">Impor Excel TK</button><input id="studentExcelFileTK" type="file" accept=".xlsx,.xls,.csv" class="hide" onchange="importStudentsExcel(event,'TK')"></div><div class="toolbar"><input id="adminStudentSearchTK" placeholder="Cari nama siswa TK atau orang tua..." oninput="renderAdminStudentActions('TK')"><button class="btn red" type="button" onclick="deleteAllStudentsByLevel('TK')">Hapus Semua Calon Siswa TK</button></div><div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama Siswa</th><th>L/P</th><th>Nama Orang Tua</th><th>Aksi</th></tr></thead><tbody id="adminStudentRowsTK"></tbody></table></div></div></details>
+<details class="panel admin-student-accordion"><summary><h3>Manajemen Edit dan Hapus Siswa SD</h3></summary><div class="accordion-content"><p class="muted">Kelola perubahan, penambahan, dan penghapusan data calon siswa jenjang SD.</p><div class="toolbar"><button class="btn" type="button" onclick="prepareStudentAdmin('SD');openAddStudent()">＋ Tambah Nama Siswa SD</button><button class="btn secondary" type="button" onclick="prepareStudentAdmin('SD');downloadStudentTemplate()">Templet Excel SD</button><button class="btn" type="button" onclick="prepareStudentAdmin('SD');exportStudentsExcel()">Ekspor Excel SD</button><button class="btn yellow" type="button" onclick="prepareStudentAdmin('SD');$('studentExcelFileSD').click()">Impor Excel SD</button><input id="studentExcelFileSD" type="file" accept=".xlsx,.xls,.csv" class="hide" onchange="importStudentsExcel(event,'SD')"></div><div class="toolbar"><input id="adminStudentSearchSD" placeholder="Cari nama siswa SD atau orang tua..." oninput="renderAdminStudentActions('SD')"><button class="btn red" type="button" onclick="deleteAllStudentsByLevel('SD')">Hapus Semua Calon Siswa SD</button></div><div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama Siswa</th><th>L/P</th><th>Nama Orang Tua</th><th>Aksi</th></tr></thead><tbody id="adminStudentRowsSD"></tbody></table></div></div></details><div class="panel"><h3>Cetak Rekapitulasi Berdasarkan Status</h3><p class="muted">Cetak daftar calon siswa berdasarkan status penerimaan atau pembayaran.</p><div class="toolbar"><label class="field">Jenjang<select id="adminPrintLevel"><option value="SEMUA">Semua Jenjang</option><option value="TK">TK</option><option value="SD">SD</option></select></label><label class="field">Jenis Status<select id="adminPrintType" onchange="updateAdminPrintStatusOptions()"><option value="penerimaan">Status Penerimaan</option><option value="pembayaran">Status Pembayaran</option></select></label><label class="field">Status<select id="adminPrintStatus"><option value="Lulus">Lulus</option><option value="Ditunda">Ditunda</option></select></label><button class="btn" type="button" onclick="printAdminStatusRecap()">Cetak Daftar</button></div></div>
 <div class="panel"><h3>Input Nama Penguji</h3><p class="muted">Tambahkan nama penguji/interview yang akan dipilih pada data calon siswa TK dan SD.</p><form onsubmit="submitTeacher(event)" class="toolbar"><input id="teacherName" placeholder="Masukkan nama penguji" required><button class="btn" type="submit">Simpan Nama Penguji</button></form><div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama Penguji</th><th>Aksi</th></tr></thead><tbody id="teacherRows"></tbody></table></div></div>
 <div class="panel"><h3>Input Nama Petugas Pendaftaran</h3><p class="muted">Tambahkan nama petugas pendaftaran yang akan dipilih pada data calon siswa TK dan SD.</p><form onsubmit="submitPetugas(event)" class="toolbar"><input id="petugasName" placeholder="Masukkan nama petugas pendaftaran" required><button class="btn" type="submit">Simpan Nama Petugas</button></form><div class="tablewrap"><table><thead><tr><th>No.</th><th>Nama Petugas Pendaftaran</th><th>Aksi</th></tr></thead><tbody id="petugasRows"></tbody></table></div></div>
 <div class="panel"><h3>Menu Rekapitulasi</h3><p class="muted">Buka rekapitulasi calon siswa berdasarkan jenjang.</p><div class="toolbar"><button class="btn" type="button" onclick="showPage('recap-tk')">Rekapitulasi TK</button><button class="btn" type="button" onclick="showPage('recap-sd')">Rekapitulasi SD</button></div></div>
 
-<div class="panel"><h3>Ganti Password Menu Penguji / Interview</h3><p class="muted">Password ini digunakan saat membuka menu Penguji / Interview.</p><div class="toolbar"><input id="newInterviewPassword" type="password" placeholder="Password baru (min. 6 karakter)"><input id="confirmInterviewPassword" type="password" placeholder="Ulangi password baru"><button class="btn" type="button" onclick="changeSectionPassword('interview')">Simpan Password Penguji</button></div></div>
+</div>
+</div></section>
+<section class="page" id="page-settings"><div class="intro"><h1>Pengaturan Sistem</h1><p>Pengaturan sistem aplikasi SPMB.</p></div><div class="panel" id="systemSettingsLogin"><h3>Akses Pengaturan Sistem</h3><p class="muted">Masukkan password untuk membuka pengaturan sistem.</p><div class="toolbar"><input id="systemSettingsPasswordInput" type="password" placeholder="Masukkan password Pengaturan Sistem"><button class="btn" type="button" onclick="unlockSystemSettings()">Buka Pengaturan</button></div></div><div id="systemSettingsProtected" style="display:none"><div class="panel"><h3>Ganti Password Menu Penguji / Interview</h3><p class="muted">Password ini digunakan saat membuka menu Penguji / Interview.</p><div class="toolbar"><input id="newInterviewPassword" type="password" placeholder="Password baru (min. 6 karakter)"><input id="confirmInterviewPassword" type="password" placeholder="Ulangi password baru"><button class="btn" type="button" onclick="changeSectionPassword('interview')">Simpan Password Penguji</button></div></div>
 <div class="panel"><h3>Ganti Password Menu Petugas Pendaftaran</h3><p class="muted">Password ini digunakan saat membuka menu Petugas Pendaftaran.</p><div class="toolbar"><input id="newRegistrationPassword" type="password" placeholder="Password baru (min. 6 karakter)"><input id="confirmRegistrationPassword" type="password" placeholder="Ulangi password baru"><button class="btn" type="button" onclick="changeSectionPassword('registration')">Simpan Password Petugas</button></div></div>
 <div class="panel"><h3>Ganti Password Admin</h3><div class="toolbar"><input id="adminOldPassword" type="password" placeholder="Password lama"><input id="adminNewPassword" type="password" placeholder="Password baru"><input id="adminConfirmPassword" type="password" placeholder="Ulangi password baru"><button class="btn" onclick="changeAdminPassword()">Simpan Password</button></div></div>
-<div class="panel"><h3>Kontrol Data</h3><div class="toolbar"><button class="btn secondary" type="button" onclick="exportBackup()">Backup Data</button><button class="btn yellow" type="button" onclick="document.getElementById('restoreBackupFile').click()">Restore Data</button><input id="restoreBackupFile" type="file" accept=".json,application/json" class="hide" onchange="restoreBackup(event)"><button class="btn red" onclick="adminLogout()">Keluar dari Admin</button><span class="muted" style="font-size:12px">Database: Backendless</span></div><p class="muted">Pengaturan akses menu berlaku pada browser dan komputer tempat file HTML ini digunakan.</p></div>
-</div></section>
-<section class="page" id="page-settings"><div class="intro"><h1>Pengaturan & Sinkronisasi</h1><p>Database online Backendless untuk menyimpan data aplikasi dari seluruh perangkat.</p></div><div class="panel"><h3>Identitas Sekolah</h3><form id="schoolForm" class="grid"><div class="field"><label>Nama Sekolah</label><input id="schoolName"></div><div class="field"><label>Tahun Ajaran</label><input id="schoolYear" placeholder="2026/2027"></div><div class="field"><label>Nama Kepala Sekolah</label><input id="schoolHead"></div><div class="field"><label>Alamat Sekolah</label><input id="schoolAddress"></div><div class="field full"><button class="btn">Simpan Identitas</button></div></form></div></section>
+<div class="panel"><h3>Kontrol Data</h3><div class="toolbar"><button class="btn secondary" type="button" onclick="exportBackup()">Backup Data</button><button class="btn yellow" type="button" onclick="document.getElementById('restoreBackupFile').click()">Restore Data</button><input id="restoreBackupFile" type="file" accept=".json,application/json" class="hide" onchange="restoreBackup(event)"><button class="btn red" onclick="adminLogout()">Keluar dari Admin</button><span class="muted" style="font-size:12px">Database: Backendless</span></div><p class="muted">Data tersimpan online di Backendless dan dapat diakses dari perangkat lain.</p><div class="panel"><h3>Ganti Password Pengaturan Sistem</h3><p class="muted">Password ini digunakan untuk membuka seluruh menu Pengaturan Sistem.</p><div class="toolbar"><input id="systemSettingsOldPassword" type="password" placeholder="Password lama"><input id="systemSettingsNewPassword" type="password" placeholder="Password baru (min. 6 karakter)"><input id="systemSettingsConfirmPassword" type="password" placeholder="Ulangi password baru"><button class="btn" type="button" onclick="changeSystemSettingsPassword()">Simpan Password Pengaturan Sistem</button></div></div></div></section>
 
 </div></main></div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);const money=n=>'Rp'+Number(n||0).toLocaleString('id-ID');const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const today=()=>new Date().toLocaleDateString('en-CA');
-const DEFAULT_DB={students:[],fees:[],payments:[],school:{name:'Nama Sekolah',year:'2026/2027',head:'',address:''},teachers:[],petugas:[],admin:{password:'123456',menuAccess:{}},sectionPasswords:{interview:'123456',registration:'654321'},lastSync:''};
+const DEFAULT_DB={students:[],fees:[],payments:[],school:{TK:{name:'Nama Sekolah TK',year:'2026/2027',head:'',address:''},SD:{name:'Nama Sekolah SD',year:'2026/2027',head:'',address:''}},teachers:[],petugas:[],admin:{password:'123456',menuAccess:{}},sectionPasswords:{interview:'123456',registration:'654321'},systemSettingsPassword:'123456',lastSync:''};
 const STORAGE_KEY='spmb_payment_manual_v1';
 // Konfigurasi Backendless aplikasi SPMB_AL_MADINAH
 const BACKENDLESS_APP_ID='01DF0D61-1379-4DE8-9C0F-9CFC5A9BCA8D';
@@ -144,6 +201,19 @@ const BACKENDLESS_BASE=`https://api.backendless.com/${BACKENDLESS_APP_ID}/${BACK
 let backendlessObjectId=null;
 function load(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');return saved&&typeof saved==='object'?Object.assign(structuredClone(DEFAULT_DB),saved):structuredClone(DEFAULT_DB)}catch(e){return structuredClone(DEFAULT_DB)}}
 let db=load();
+function normalizeSchoolData(data){
+  const old=data.school||{};
+  if(!old.TK||!old.SD){
+    data.school={
+      TK:{name:old.name||'Nama Sekolah TK',year:old.year||'2026/2027',head:old.head||'',address:old.address||''},
+      SD:{name:old.name||'Nama Sekolah SD',year:old.year||'2026/2027',head:old.head||'',address:old.address||''}
+    };
+  }
+  data.systemSettingsPassword=data.systemSettingsPassword||'123456';
+  return data;
+}
+db=normalizeSchoolData(db);
+let systemSettingsUnlocked=false;
 let cloudReady=false,cloudSaveTimer=null,cloudLoading=true;
 function setCloudStatus(message,ok){const el=document.getElementById('cloudStatus');if(el){el.textContent=message;el.style.color=ok?'#26713a':'#b94040';}}
 function save(){
@@ -187,7 +257,7 @@ async function loadCloudDatabase(){
       backendlessObjectId=record.objectId||null;
       const raw=record.payload;
       const stored=typeof raw==='string'?JSON.parse(raw):raw;
-      if(stored&&typeof stored==='object')db=Object.assign(structuredClone(DEFAULT_DB),stored);
+      if(stored&&typeof stored==='object')db=normalizeSchoolData(Object.assign(structuredClone(DEFAULT_DB),stored));
     }
     // Jika tabel masih kosong, pertahankan data lokal yang ada lalu buat rekaman online pertama.
     db.teachers=Array.isArray(db.teachers)?db.teachers:[];
@@ -195,7 +265,7 @@ async function loadCloudDatabase(){
     db.admin=Object.assign({password:'123456',menuAccess:{}},db.admin||{});
     db.sectionPasswords=Object.assign({interview:'123456',registration:'654321'},db.sectionPasswords||{});
     localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
-    cloudReady=true;cloudLoading=false;render();showPage('dashboard');
+    cloudReady=true;cloudLoading=false;render();updateSchoolYearBadge();showPage('dashboard');
     setCloudStatus('Terhubung — Backendless',true);
     const notice=document.getElementById('syncNotice');
     if(notice)notice.textContent='Data tersimpan online di Backendless. Perubahan akan disimpan otomatis.';
@@ -223,14 +293,14 @@ function showPage(n){
     students:'Data Calon Siswa',
     'recap-tk':'Rekapitulasi TK','recap-sd':'Rekapitulasi SD',
     teachers:'Daftar Nama Penguji',petugas:'Daftar Nama Petugas',
-    settings:'Pengaturan & Sinkronisasi',admin:'Admin'
+    settings:'Pengaturan Sistem',admin:'Admin'
   }[n]||'Kwitansi Pembayaran');
   if(page==='students'){
     currentStudentImportLevel=n.includes('-sd-')?'SD':'TK';
     currentStudentMode=n.endsWith('-registration')?'registration':'interview';
     renderStudents();
   }
-  if(page==='settings')fillSettings();
+  if(page==='settings'){fillSettings();systemSettingsUnlocked=false;$('systemSettingsLogin').style.display='block';$('systemSettingsProtected').style.display='none';$('systemSettingsPasswordInput').value='';}
   if(page==='teachers')renderTeachers();
   if(page==='petugas')renderPetugas();
   if(page==='admin'){
@@ -266,6 +336,7 @@ function render(){
   $('dDeferred').textContent=allStudents.filter(s=>s.admissionStatus==='Ditunda').length;
   $('dPassed').textContent=allStudents.filter(s=>s.admissionStatus==='Lulus').length;
   $('syncNotice').textContent=cloudReady?'Data tersimpan online di Backendless. Perubahan akan disimpan otomatis.':(db.lastSync?'Data SPMB terakhir diperbarui: '+new Date(db.lastSync).toLocaleString('id-ID')+'.':'Menghubungkan ke database Backendless...');const levelRows=$('levelRows');if(levelRows)levelRows.innerHTML=['TK','SD','SMP'].map(l=>{let a=db.students.filter(s=>level(s)===l),bill=a.reduce((x,s)=>x+totalFor(s),0),paid=a.reduce((x,s)=>x+paidFor(s),0);return `<tr><td><b>${l}</b></td><td>${a.length}</td><td>${money(bill)}</td><td>${money(paid)}</td><td>${money(Math.max(0,bill-paid))}</td></tr>`}).join('');const recentPayments=$('recentPayments');if(recentPayments)recentPayments.innerHTML=db.payments.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(p=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return `<tr><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${money(p.amount)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Belum ada pembayaran.</td></tr>'}
+function prepareStudentAdmin(jenjang){currentStudentImportLevel=jenjang;}
 function openAddStudent(){$('addStudentLevelText').textContent='Jenjang '+currentStudentImportLevel;$('newStudentName').value='';$('newStudentParent').value='';$('newStudentGender').value='';$('addStudentModal').style.display='flex';$('newStudentName').focus()}
 function closeAddStudent(){$('addStudentModal').style.display='none'}
 function saveNewStudent(){const name=$('newStudentName').value.trim().toLocaleUpperCase('id-ID'),parent=$('newStudentParent').value.trim().toLocaleUpperCase('id-ID'),gender=$('newStudentGender').value;if(!name)return alert('Nama siswa wajib diisi.');if(!parent)return alert('Nama orang tua wajib diisi.');if(!gender)return alert('Pilih jenis kelamin siswa.');const duplicate=db.students.some(x=>level(x)===currentStudentImportLevel&&studentName(x).toLocaleLowerCase('id-ID')===name.toLocaleLowerCase('id-ID'));if(duplicate)return alert('Nama siswa tersebut sudah terdaftar pada jenjang '+currentStudentImportLevel+'.');db.students.push({id:'manual-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),fullName:name,gender:gender,jenisKelamin:gender,father:parent,parentName:parent,namaOrangTua:parent,schoolCategory:currentStudentImportLevel,registrationDate:localToday(),status:'Terdaftar',paymentStatus:'Belum Bayar',admissionStatus:'',examinerId:''});save();closeAddStudent();renderStudents();renderAdminStudentActions();render();if(currentStudentImportLevel==='TK')renderRecap('TK');else renderRecap('SD');alert('Berhasil disimpan. Data siswa '+name+' telah ditambahkan ke jenjang '+currentStudentImportLevel+'.')}
@@ -279,7 +350,9 @@ function renderStudents(){
   $('studentRows').innerHTML=a.map((s,i)=>{
     const actions=interview
       ? `<button class="btn small status-lulus ${s.admissionStatus==='Lulus'?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentAdmissionStatus(this,'Lulus')">Lulus</button><button class="btn small status-ditunda ${s.admissionStatus==='Ditunda'?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentAdmissionStatus(this,'Ditunda')">Ditunda</button>${s.admissionStatus==='Ditunda'&&s.admissionNote?`<div class="muted" style="font-size:12px;margin-top:6px;max-width:260px;white-space:normal">Keterangan: ${esc(s.admissionNote)}</div>`:''}`
-      : `<button class="btn small status-unpaid ${(!s.paymentStatus||s.paymentStatus==='Belum Bayar')?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentPaymentStatus(this,'Belum Bayar')">Belum Bayar</button><button class="btn small status-partial ${s.paymentStatus==='Setengah Bayar'?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentPaymentStatus(this,'Setengah Bayar')">Setengah Bayar</button><button class="btn small status-paid ${s.paymentStatus==='Lunas'?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentPaymentStatus(this,'Lunas')">Lunas</button>`;
+      : s.admissionStatus==='Lulus'
+        ? `<button class="btn small status-unpaid ${(!s.paymentStatus||s.paymentStatus==='Belum Bayar')?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentPaymentStatus(this,'Belum Bayar')">Belum Bayar</button><button class="btn small status-partial ${s.paymentStatus==='Setengah Bayar'?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentPaymentStatus(this,'Setengah Bayar')">Setengah Bayar</button><button class="btn small status-paid ${s.paymentStatus==='Lunas'?'status-active':''}" data-id="${esc(String(s.id))}" onclick="setStudentPaymentStatus(this,'Lunas')">Lunas</button>`
+        : '';
     const officer=interview
       ? `<select class="examiner-select" data-id="${esc(String(s.id))}" onchange="assignExaminer(this)"><option value="">-- Pilih Penguji --</option>${db.teachers.map(t=>`<option value="${esc(t.id)}" ${s.examinerId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>`
       : `<select class="examiner-select" data-id="${esc(String(s.id))}" onchange="assignPetugas(this)"><option value="">-- Pilih Petugas --</option>${db.petugas.map(t=>`<option value="${esc(t.id)}" ${s.petugasId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>`;
@@ -299,17 +372,17 @@ function spreadsheetReady(){if(!window.XLSX){alert('Fitur Excel memerlukan konek
 function saveWorkbook(rows,fileName,sheetName){if(!spreadsheetReady())return;const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:32},{wch:32}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,sheetName);XLSX.writeFile(wb,fileName)}
 function downloadStudentTemplate(){saveWorkbook([['Nama Siswa','Nama Orang Tua'],['Contoh: Ahmad','Contoh: Bapak Ahmad']],'Templet_Data_Calon_Siswa_SPMB.xlsx','Data Siswa')}
 function exportStudentsExcel(){const rows=[['Nama Siswa','Nama Orang Tua'],...db.students.map(s=>[studentName(s),s.father||s.mother||s.parentName||s.namaOrangTua||''])];saveWorkbook(rows,'Data_Calon_Siswa_SPMB.xlsx','Data Siswa')}
-function importStudentsExcel(event){const file=event.target.files[0];if(!file)return;if(!spreadsheetReady()){event.target.value='';return}const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});if(!rows.length)throw new Error('File Excel kosong.');const keys=Object.keys(rows[0]);if(!keys.some(k=>k.toLowerCase().trim()==='nama siswa')||!keys.some(k=>k.toLowerCase().trim()==='nama orang tua'))throw new Error('Kolom wajib: Nama Siswa dan Nama Orang Tua. Gunakan templet yang disediakan.');let added=0,updated=0;rows.forEach(row=>{const get=label=>{const k=Object.keys(row).find(x=>x.toLowerCase().trim()===label);return k?String(row[k]||'').trim():''};const name=get('nama siswa'),parent=get('nama orang tua');if(!name)return;const existing=db.students.find(x=>studentName(x).toLowerCase()===name.toLowerCase()&&level(x)===currentStudentImportLevel);if(existing){existing.father=parent;existing.parentName=parent;if(!existing.registrationDate)existing.registrationDate=localToday();updated++}else{db.students.push({id:'excel-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fullName:name.toLocaleUpperCase('id-ID'),father:parent.toLocaleUpperCase('id-ID'),parentName:parent.toLocaleUpperCase('id-ID'),schoolCategory:currentStudentImportLevel,registrationDate:localToday(),regNo:'',status:'Impor Excel'});added++}});save();render();renderStudents();alert('Impor Excel berhasil. '+added+' siswa ditambahkan dan '+updated+' data diperbarui.')}catch(err){alert(err.message||'Gagal membaca file Excel.')}event.target.value=''};reader.readAsArrayBuffer(file)}
+function importStudentsExcel(event,jenjang){if(jenjang)currentStudentImportLevel=jenjang;const file=event.target.files[0];if(!file)return;if(!spreadsheetReady()){event.target.value='';return}const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});if(!rows.length)throw new Error('File Excel kosong.');const keys=Object.keys(rows[0]);if(!keys.some(k=>k.toLowerCase().trim()==='nama siswa')||!keys.some(k=>k.toLowerCase().trim()==='nama orang tua'))throw new Error('Kolom wajib: Nama Siswa dan Nama Orang Tua. Gunakan templet yang disediakan.');let added=0,updated=0;rows.forEach(row=>{const get=label=>{const k=Object.keys(row).find(x=>x.toLowerCase().trim()===label);return k?String(row[k]||'').trim():''};const name=get('nama siswa'),parent=get('nama orang tua');if(!name)return;const existing=db.students.find(x=>studentName(x).toLowerCase()===name.toLowerCase()&&level(x)===currentStudentImportLevel);if(existing){existing.father=parent;existing.parentName=parent;if(!existing.registrationDate)existing.registrationDate=localToday();updated++}else{db.students.push({id:'excel-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fullName:name.toLocaleUpperCase('id-ID'),father:parent.toLocaleUpperCase('id-ID'),parentName:parent.toLocaleUpperCase('id-ID'),schoolCategory:currentStudentImportLevel,registrationDate:localToday(),regNo:'',status:'Impor Excel'});added++}});save();render();renderStudents();alert('Impor Excel berhasil. '+added+' siswa ditambahkan dan '+updated+' data diperbarui.')}catch(err){alert(err.message||'Gagal membaca file Excel.')}event.target.value=''};reader.readAsArrayBuffer(file)}
 function renderFees(){$('feeRows').innerHTML=db.fees.map((f,i)=>`<tr><td>${f.level}</td><td>${esc(f.name)}</td><td>${money(f.amount)}</td><td>${esc(f.note)}</td><td><button class="btn red small" onclick="delFee('${f.id}')">Hapus</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Belum ada jenis biaya.</td></tr>'}function delFee(id){if(confirm('Hapus jenis biaya ini?')){db.fees=db.fees.filter(f=>f.id!==id);save();renderFees();fillPaymentForm();render()}}
 function fillPaymentForm(){$('payStudent').innerHTML='<option value="">-- Pilih siswa --</option>'+db.students.map(s=>`<option value="${esc(String(s.id))}">${esc(s.regNo||'')} — ${esc(studentName(s))} (${level(s)})</option>`).join('');$('payDate').value=today();$('payFee').innerHTML='<option value="">-- Pilih jenis biaya --</option>'+db.fees.map(f=>`<option value="${f.id}">${f.level} — ${esc(f.name)} (${money(f.amount)})</option>`).join('')}
 if($('payStudent')) $('payStudent').onchange=()=>{let s=db.students.find(s=>String(s.id)===$('payStudent').value);if(s){let f=db.fees.find(f=>f.level===level(s));if(f)$('payFee').value=f.id}};
 const paymentForm=$('paymentForm'); if(paymentForm) paymentForm.onsubmit=e=>{e.preventDefault();let s=db.students.find(s=>String(s.id)===$('payStudent').value),f=db.fees.find(f=>f.id===$('payFee').value),amount=Number($('payAmount').value);if(!s||!f||!amount)return alert('Lengkapi data pembayaran.');let p={id:String(Date.now()),receipt:'KWT-'+new Date().getFullYear()+'-'+String(db.payments.length+1).padStart(5,'0'),studentId:String(s.id),feeId:f.id,feeName:f.name,level:level(s),date:$('payDate').value,amount,method:$('payMethod').value,officer:$('payOfficer').value,note:$('payNote').value};db.payments.push(p);save();render();e.target.reset();fillPaymentForm();showReceipt(p.id)};
-function showReceipt(id){let p=db.payments.find(x=>x.id===id),s=db.students.find(x=>String(x.id)===p.studentId)||{};$('receiptArea').innerHTML=`<h2>${esc(db.school.name)}</h2><p>${esc(db.school.address)}</p><div class="line"></div><h3 style="text-align:center">BUKTI PEMBAYARAN SPMB</h3><p style="text-align:center">Nomor: <b>${esc(p.receipt)}</b></p><table><tr><td width="38%">Nama Siswa</td><td>: <b>${esc(studentName(s))}</b></td></tr><tr><td>Nomor Pendaftaran</td><td>: ${esc(s.regNo||'—')}</td></tr><tr><td>Jenjang</td><td>: ${level(s)}</td></tr><tr><td>Tanggal</td><td>: ${p.date}</td></tr><tr><td>Jenis Pembayaran</td><td>: ${esc(p.feeName)}</td></tr><tr><td>Metode</td><td>: ${esc(p.method)}</td></tr><tr><td>Jumlah Dibayar</td><td>: <b>${money(p.amount)}</b></td></tr><tr><td>Terbilang</td><td>: ${terbilang(p.amount)} rupiah</td></tr><tr><td>Petugas</td><td>: ${esc(p.officer||'—')}</td></tr></table><div class="sign"><div>Penyetor,<br><br><br>(........................)</div><div>Penerima,<br><br><br>(${esc(p.officer||'........................')})</div></div>`;showPage('receipt')}
+function showReceipt(id){let p=db.payments.find(x=>x.id===id),s=db.students.find(x=>String(x.id)===p.studentId)||{};$('receiptArea').innerHTML=`<h2>${esc(((db.school&&db.school[level(s)])||{}).name||'Nama Sekolah')}</h2><p>${esc(((db.school&&db.school[level(s)])||{}).address||'')}</p><div class="line"></div><h3 style="text-align:center">BUKTI PEMBAYARAN SPMB</h3><p style="text-align:center">Nomor: <b>${esc(p.receipt)}</b></p><table><tr><td width="38%">Nama Siswa</td><td>: <b>${esc(studentName(s))}</b></td></tr><tr><td>Nomor Pendaftaran</td><td>: ${esc(s.regNo||'—')}</td></tr><tr><td>Jenjang</td><td>: ${level(s)}</td></tr><tr><td>Tanggal</td><td>: ${p.date}</td></tr><tr><td>Jenis Pembayaran</td><td>: ${esc(p.feeName)}</td></tr><tr><td>Metode</td><td>: ${esc(p.method)}</td></tr><tr><td>Jumlah Dibayar</td><td>: <b>${money(p.amount)}</b></td></tr><tr><td>Terbilang</td><td>: ${terbilang(p.amount)} rupiah</td></tr><tr><td>Petugas</td><td>: ${esc(p.officer||'—')}</td></tr></table><div class="sign"><div>Penyetor,<br><br><br>(........................)</div><div>Penerima,<br><br><br>(${esc(p.officer||'........................')})</div></div>`;showPage('receipt')}
 function terbilang(n){let a=['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];n=Math.floor(n);if(n<12)return a[n];if(n<20)return terbilang(n-10)+' belas';if(n<100)return terbilang(Math.floor(n/10))+' puluh '+terbilang(n%10);if(n<200)return 'seratus '+terbilang(n-100);if(n<1000)return terbilang(Math.floor(n/100))+' ratus '+terbilang(n%100);if(n<2000)return 'seribu '+terbilang(n-1000);if(n<1e6)return terbilang(Math.floor(n/1000))+' ribu '+terbilang(n%1000);if(n<1e9)return terbilang(Math.floor(n/1e6))+' juta '+terbilang(n%1e6);return String(n)}
 function renderHistory(){let q=$('historySearch').value.toLowerCase(),l=$('historyLevel').value,a=db.payments.filter(p=>{let s=db.students.find(x=>String(x.id)===p.studentId)||{};return (!l||level(s)===l)&&(!q||[p.receipt,studentName(s)].some(v=>String(v||'').toLowerCase().includes(q)))}).slice().sort((x,y)=>y.date.localeCompare(x.date));$('historyRows').innerHTML=a.map(p=>{let s=db.students.find(x=>String(x.id)===p.studentId)||{};return `<tr><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${esc(p.feeName)}</td><td>${money(p.amount)}</td><td>${esc(p.method)}</td><td><button class="btn secondary small" onclick="showReceipt('${p.id}')">Kwitansi</button></td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Belum ada transaksi.</td></tr>'}
 function reportData(){let from=$('reportFrom').value,to=$('reportTo').value,l=$('reportLevel').value;let a=db.payments.filter(p=>(!from||p.date>=from)&&(!to||p.date<=to)&&(!l||p.level===l));return a}function renderReport(){let a=reportData(),students=db.students.filter(s=>!$('reportLevel').value||level(s)===$('reportLevel').value),bill=students.reduce((x,s)=>x+totalFor(s),0),paid=a.reduce((x,p)=>x+p.amount,0);$('rCount').textContent=a.length;$('rPaid').textContent=money(paid);$('rBill').textContent=money(bill);$('rRemain').textContent=money(Math.max(0,bill-paid));$('reportRows').innerHTML=a.map((p,i)=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return `<tr><td>${i+1}</td><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${esc(p.feeName)}</td><td>${money(p.amount)}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Tidak ada transaksi pada filter ini.</td></tr>'}
 function csv(rows,name){let content='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));a.href=u;a.download=name+'.csv';a.click();URL.revokeObjectURL(u)}function exportPayments(){csv([['Tanggal','No Kwitansi','Nama Siswa','Jenjang','Jenis Biaya','Nominal','Metode'],...db.payments.map(p=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return [p.date,p.receipt,studentName(s),level(s),p.feeName,p.amount,p.method]})],'Rekap_Pembayaran_SPMB')}function exportReport(){let a=reportData();csv([['Tanggal','No Kwitansi','Nama Siswa','Jenjang','Jenis Biaya','Nominal'],...a.map(p=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return [p.date,p.receipt,studentName(s),level(s),p.feeName,p.amount]})],'Laporan_Pembayaran_SPMB')}
-function importSPMB(){let f=$('spmbFile').files[0];if(!f)return alert('Pilih file backup JSON dari aplikasi SPMB terlebih dahulu.');let r=new FileReader();r.onload=()=>{try{let data=JSON.parse(r.result);if(!Array.isArray(data.students))throw 0;let incoming=data.students;let map=new Map(db.students.map(s=>[String(s.id),s]));incoming.forEach(s=>map.set(String(s.id),s));db.students=[...map.values()];db.lastSync=new Date().toISOString();if(data.settings)db.school={...db.school,name:data.settings.schoolName||db.school.name,address:data.settings.schoolAddress||db.school.address,head:data.settings.schoolHead||db.school.head,year:data.settings.schoolYear||db.school.year};save();render();renderStudents();$('importStatus').textContent='Berhasil mengimpor/memperbarui '+incoming.length+' data siswa pada '+new Date().toLocaleString('id-ID')+'. Riwayat pembayaran tetap dipertahankan.';alert('Data siswa SPMB berhasil disinkronkan.')}catch(e){alert('File tidak sesuai. Gunakan file Backup Data (.json) dari aplikasi SPMB.')}};r.readAsText(f)}
+function importSPMB(){let f=$('spmbFile').files[0];if(!f)return alert('Pilih file backup JSON dari aplikasi SPMB terlebih dahulu.');let r=new FileReader();r.onload=()=>{try{let data=JSON.parse(r.result);if(!Array.isArray(data.students))throw 0;let incoming=data.students;let map=new Map(db.students.map(s=>[String(s.id),s]));incoming.forEach(s=>map.set(String(s.id),s));db.students=[...map.values()];db.lastSync=new Date().toISOString();if(data.settings){['TK','SD'].forEach(l=>{db.school[l]=Object.assign({},db.school[l]||{},{name:data.settings.schoolName||db.school[l].name,address:data.settings.schoolAddress||db.school[l].address,head:data.settings.schoolHead||db.school[l].head,year:data.settings.schoolYear||db.school[l].year});});}save();render();renderStudents();$('importStatus').textContent='Berhasil mengimpor/memperbarui '+incoming.length+' data siswa pada '+new Date().toLocaleString('id-ID')+'. Riwayat pembayaran tetap dipertahankan.';alert('Data siswa SPMB berhasil disinkronkan.')}catch(e){alert('File tidak sesuai. Gunakan file Backup Data (.json) dari aplikasi SPMB.')}};r.readAsText(f)}
 function exportBackup(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.href=u;a.download='Backup_Pembayaran_SPMB.json';a.click();URL.revokeObjectURL(u)}
 function restoreBackup(event){
   const file=event.target.files&&event.target.files[0];
@@ -326,7 +399,7 @@ function restoreBackup(event){
       if(!next.school||typeof next.school!=='object'||!next.admin||typeof next.admin!=='object'||!next.sectionPasswords||typeof next.sectionPasswords!=='object')
         throw new Error('Bagian pengaturan atau akses pada file backup tidak valid.');
       if(!confirm('Restore akan mengganti seluruh data aplikasi saat ini dengan isi file backup. Pastikan Anda sudah membuat Backup Data terbaru. Lanjutkan?'))return;
-      db=next;
+      db=normalizeSchoolData(next);
       save();
       render();
       renderStudents();
@@ -336,6 +409,7 @@ function restoreBackup(event){
       renderRecap('TK');
       renderRecap('SD');
       fillSettings();
+      updateSchoolYearBadge();
       alert('Restore Data berhasil. Data dari file backup sudah dipulihkan.');
     }catch(err){alert(err.message||'Gagal memulihkan data. Pastikan file JSON berasal dari menu Backup Data aplikasi ini.');}
     finally{event.target.value='';}
@@ -347,7 +421,7 @@ function resetPayments(){if(confirm('Yakin menghapus seluruh transaksi pembayara
 function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function formatRegistrationDate(value){if(!value)return '—';const parts=String(value).slice(0,10).split('-');return parts.length===3?parts[2]+'-'+parts[1]+'-'+parts[0]:String(value)}
 function recapStudents(jenjang){return db.students.filter(s=>level(s)===jenjang).sort((a,b)=>studentName(a).localeCompare(studentName(b),'id'))}
-function printRecapRange(jenjang){const prefix=jenjang==='TK'?'recapTK':'recapSD',start=$(prefix+'StartDate').value,end=$(prefix+'EndDate').value;if(!start||!end)return alert('Silakan pilih tanggal awal dan tanggal akhir.');if(start>end)return alert('Tanggal awal tidak boleh melewati tanggal akhir.');const filtered=db.students.filter(s=>level(s)===jenjang&&s.registrationDate&&s.registrationDate>=start&&s.registrationDate<=end).sort((a,b)=>studentName(a).localeCompare(studentName(b),'id'));if(!filtered.length){alert('Tidak ada calon siswa '+jenjang+' pada rentang tanggal tersebut. Pastikan data memiliki tanggal pendaftaran yang sesuai.');return;}const oldTitle=document.title;const restore=()=>{document.body.dataset.printRecap='';document.title=oldTitle;renderRecap(jenjang);};renderRecap(jenjang,filtered);document.title='Rekapitulasi '+jenjang+' '+start+' sampai '+end;document.body.dataset.printRecap=jenjang;window.addEventListener('afterprint',restore,{once:true});window.print();}
+function printRecapRange(jenjang){const prefix=jenjang==='TK'?'recapTK':'recapSD',start=$(prefix+'StartDate').value,end=$(prefix+'EndDate').value;if(!start||!end)return alert('Silakan pilih tanggal awal dan tanggal akhir.');if(start>end)return alert('Tanggal awal tidak boleh melewati tanggal akhir.');const filtered=db.students.filter(s=>level(s)===jenjang&&s.registrationDate&&s.registrationDate>=start&&s.registrationDate<=end).sort((a,b)=>studentName(a).localeCompare(studentName(b),'id'));if(!filtered.length){alert('Tidak ada calon siswa '+jenjang+' pada rentang tanggal tersebut. Pastikan data memiliki tanggal pendaftaran yang sesuai.');return;}const oldTitle=document.title;const restore=()=>{document.body.dataset.printRecap='';document.title=oldTitle;renderRecap(jenjang);};renderRecap(jenjang,filtered);$(jenjang==='TK'?'recapTKSignature':'recapSDSignature').innerHTML=headmasterSignatureHtml(jenjang);document.title='Rekapitulasi '+jenjang+' '+start+' sampai '+end;document.body.dataset.printRecap=jenjang;window.addEventListener('afterprint',restore,{once:true});window.print();}
 function paymentStatusLabel(s){return ['Belum Bayar','Setengah Bayar','Lunas'].includes(s.paymentStatus)?s.paymentStatus:'Belum Bayar'}
 function paymentStatusClass(s){return paymentStatusLabel(s)==='Lunas'?'status-paid':paymentStatusLabel(s)==='Setengah Bayar'?'status-partial':'status-unpaid'}
 function paymentStatusInlineStyle(s){const status=paymentStatusLabel(s);if(status==='Lunas')return 'background:#39864a!important;background-color:#39864a!important;color:#ffffff!important;border:1px solid #39864a!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important';if(status==='Setengah Bayar')return 'background:#f29a27!important;background-color:#f29a27!important;color:#ffffff!important;border:1px solid #f29a27!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important';return 'background:#dc4545!important;background-color:#dc4545!important;color:#ffffff!important;border:1px solid #dc4545!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important'}
@@ -371,9 +445,24 @@ function resetOneStudentStatus(button){
 }
 function petugasDisplayName(s){const p=db.petugas.find(t=>String(t.id)===String(s.petugasId||''));return p?p.name:'—'}
 function printDateIndonesian(){return new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
-function headmasterSignatureHtml(){const name=String((db.school&&db.school.head)||'').trim();return `<div class="head-signature-inner"><div>Mengetahui,</div><div>Kepala Sekolah</div><div class="signature-space"></div><div class="head-signature-name">${esc(name||'........................................')}</div></div>`}
-function renderRecap(jenjang,records){const a=records||recapStudents(jenjang),prefix=jenjang==='TK'?'recapTK':'recapSD';$(prefix+'Signature').innerHTML=headmasterSignatureHtml();$(prefix+'PrintDate').textContent='Tanggal Cetak: '+printDateIndonesian();$(prefix+'Count').textContent=a.length+' siswa';$(prefix+'Rows').innerHTML=a.map((s,i)=>`<tr><td>${esc(formatRegistrationDate(s.registrationDate))}</td><td>${i+1}</td><td><b>${esc(studentName(s))}</b></td><td><b>${genderShort(s)}</b></td><td>${esc(parentDisplayName(s))}</td><td><span class="btn small ${paymentStatusClass(s)}" style="display:inline-block;cursor:default;padding:7px 12px;border-radius:8px;font-weight:700;${paymentStatusInlineStyle(s)}">${paymentStatusLabel(s)}</span></td><td>${admissionStatusMarkup(s)}</td><td>${esc(examinerDisplayName(s))}</td><td>${esc(petugasDisplayName(s))}</td><td><button class="btn red small" data-id="${esc(String(s.id))}" onclick="resetOneStudentStatus(this)">Reset Status</button></td></tr>`).join('')||'<tr><td colspan="10" class="empty">Belum ada data calon siswa.</td></tr>'}
-function printRecap(jenjang){renderRecap(jenjang);const old=document.title;document.title='Rekapitulasi Calon Siswa '+jenjang;document.body.dataset.printRecap=jenjang;window.print();document.body.dataset.printRecap='';document.title=old}
+function headmasterSignatureHtml(jenjang){
+  const school=(db.school&&db.school[jenjang])||{};
+  const name=String(school.head||school.namaKepalaSekolah||'').trim();
+  return `<div class="head-signature-inner"><div>Mengetahui,</div><div>Kepala Sekolah</div><div class="signature-space"></div><div class="head-signature-name">${esc(name||'........................................')}</div></div>`;
+}
+function renderRecap(jenjang,records){const a=records||recapStudents(jenjang),prefix=jenjang==='TK'?'recapTK':'recapSD';$(prefix+'Signature').innerHTML=headmasterSignatureHtml(jenjang);$(prefix+'PrintDate').textContent='Tanggal Cetak: '+printDateIndonesian();$(prefix+'Count').textContent=a.length+' siswa';$(prefix+'Rows').innerHTML=a.map((s,i)=>`<tr><td>${esc(formatRegistrationDate(s.registrationDate))}</td><td>${i+1}</td><td><b>${esc(studentName(s))}</b></td><td><b>${genderShort(s)}</b></td><td>${esc(parentDisplayName(s))}</td><td><span class="btn small ${paymentStatusClass(s)}" style="display:inline-block;cursor:default;padding:7px 12px;border-radius:8px;font-weight:700;${paymentStatusInlineStyle(s)}">${paymentStatusLabel(s)}</span></td><td>${admissionStatusMarkup(s)}</td><td>${esc(examinerDisplayName(s))}</td><td>${esc(petugasDisplayName(s))}</td><td><button class="btn red small" data-id="${esc(String(s.id))}" onclick="resetOneStudentStatus(this)">Reset Status</button></td></tr>`).join('')||'<tr><td colspan="10" class="empty">Belum ada data calon siswa.</td></tr>'}
+function printRecap(jenjang){
+  renderRecap(jenjang);
+  const signatureId=jenjang==='TK'?'recapTKSignature':'recapSDSignature';
+  $(signatureId).innerHTML=headmasterSignatureHtml(jenjang);
+  const oldTitle=document.title;
+  document.title='Rekapitulasi Calon Siswa '+jenjang;
+  document.body.dataset.printRecap=jenjang;
+  const restore=()=>{document.body.dataset.printRecap='';document.title=oldTitle;};
+  window.addEventListener('afterprint',restore,{once:true});
+  window.print();
+  setTimeout(restore,1000);
+}
 function exportRecap(jenjang){const a=recapStudents(jenjang);const rows=[['No.','Nama Siswa','L/P','Nama Orang Tua','Status Pembayaran','Status Penerimaan','Nama Penguji','Nama Petugas Penerimaan'],...a.map((s,i)=>[i+1,studentName(s),genderShort(s),parentDisplayName(s),paymentStatusLabel(s),admissionStatusLabel(s),examinerDisplayName(s),petugasDisplayName(s)])];saveWorkbook(rows,'Rekapitulasi_Calon_Siswa_'+jenjang+'.xlsx','Rekap '+jenjang)}
 function renderTeachers(){$('teacherRows').innerHTML=db.teachers.map((t,i)=>`<tr><td>${i+1}</td><td><b>${esc(t.name)}</b></td><td><div class="actions"><button class="btn secondary small" data-id="${esc(t.id)}" onclick="editTeacher(this)">Edit</button><button class="btn red small" data-id="${esc(t.id)}" onclick="deleteTeacher(this)">Hapus</button></div></td></tr>`).join('')||'<tr><td colspan="3" class="empty">Belum ada guru. Tambahkan nama guru terlebih dahulu.</td></tr>'}
 function submitTeacher(e){if(!adminUnlocked){alert('Silakan login sebagai Admin terlebih dahulu.');return;}e.preventDefault();const name=$('teacherName').value.trim().toLocaleUpperCase('id-ID');if(!name)return alert('Nama guru wajib diisi.');if(db.teachers.some(t=>String(t.name).toLocaleLowerCase('id-ID')===name.toLocaleLowerCase('id-ID')))return alert('Nama guru tersebut sudah terdaftar.');db.teachers.push({id:'teacher-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name});save();$('teacherName').value='';renderTeachers();alert('Berhasil disimpan. Nama guru '+name+' sudah dapat dipilih sebagai penguji.')}
@@ -390,7 +479,7 @@ function importTeachersExcel(event){const file=event.target.files[0];if(!file)re
 function editTeacher(button){if(!adminUnlocked){alert('Silakan login sebagai Admin terlebih dahulu.');return;}const id=button.dataset.id,t=db.teachers.find(x=>String(x.id)===id);if(!t)return;const updated=prompt('Ubah nama guru / penguji:',t.name);if(updated===null)return;const name=updated.trim().toLocaleUpperCase('id-ID');if(!name)return alert('Nama guru tidak boleh kosong.');if(db.teachers.some(x=>String(x.id)!==id&&String(x.name).toLocaleLowerCase('id-ID')===name.toLocaleLowerCase('id-ID')))return alert('Nama guru tersebut sudah terdaftar.');t.name=name;save();renderTeachers();renderStudents();if($('page-recap-tk').classList.contains('active'))renderRecap('TK');if($('page-recap-sd').classList.contains('active'))renderRecap('SD');alert('Berhasil disimpan. Nama guru / penguji telah diperbarui.')}
 function deleteTeacher(button){if(!adminUnlocked){alert('Silakan login sebagai Admin terlebih dahulu.');return;}const id=button.dataset.id;if(!confirm('Hapus nama guru ini dari daftar penguji?'))return;db.teachers=db.teachers.filter(t=>t.id!==id);save();renderTeachers();alert('Nama guru berhasil dihapus dari daftar penguji.')}
 function assignExaminer(select){const student=db.students.find(s=>String(s.id)===select.dataset.id);if(!student)return;student.examinerId=select.value||'';const teacher=db.teachers.find(t=>t.id===student.examinerId);save();alert(teacher?'Berhasil disimpan. '+teacher.name+' ditetapkan sebagai penguji '+studentName(student)+'.':'Pilihan penguji berhasil dikosongkan.')}
-const adminMenuItems=[['dashboard','Dashboard'],['students-tk-interview','Penguji / Interview - Calon Siswa TK'],['students-sd-interview','Penguji / Interview - Calon Siswa SD'],['students-tk-registration','Petugas Pendaftaran - Calon Siswa TK'],['students-sd-registration','Petugas Pendaftaran - Calon Siswa SD'],['recap-tk','Rekapitulasi TK'],['recap-sd','Rekapitulasi SD'],['settings','Pengaturan & Sinkronisasi']];
+const adminMenuItems=[['dashboard','Dashboard'],['students-tk-interview','Penguji / Interview - Calon Siswa TK'],['students-sd-interview','Penguji / Interview - Calon Siswa SD'],['students-tk-registration','Petugas Pendaftaran - Calon Siswa TK'],['students-sd-registration','Petugas Pendaftaran - Calon Siswa SD'],['recap-tk','Rekapitulasi TK'],['recap-sd','Rekapitulasi SD'],['settings','Pengaturan Sistem']];
 function renderAdminStudentActions(jenjang){
   const levels=jenjang?[jenjang]:['TK','SD'];
   levels.forEach(levelName=>{
@@ -416,13 +505,57 @@ function showAllMenus(){
   document.querySelectorAll('.nav button[data-page]').forEach(b=>{if(b.dataset.page!=='admin')b.style.display='';});
   alert('Berhasil! Semua menu telah ditampilkan kembali. Klik Simpan Pengaturan Menu untuk menyimpan pengaturan.');
 }
-function changeSectionPassword(section){if(!adminUnlocked){alert('Silakan login sebagai Admin terlebih dahulu.');return;}const isInterview=section==='interview';const newId=isInterview?'newInterviewPassword':'newRegistrationPassword';const confirmId=isInterview?'confirmInterviewPassword':'confirmRegistrationPassword';const label=isInterview?'Penguji / Interview':'Petugas Pendaftaran';const n=$(newId).value.trim(),c=$(confirmId).value.trim();if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password tidak sama.');db.sectionPasswords[section]=n;save();$(newId).value='';$(confirmId).value='';alert('Password menu '+label+' berhasil diubah.');}
+function changeSectionPassword(section){if(!systemSettingsUnlocked){alert('Silakan buka Pengaturan Sistem terlebih dahulu.');return;}const isInterview=section==='interview';const newId=isInterview?'newInterviewPassword':'newRegistrationPassword';const confirmId=isInterview?'confirmInterviewPassword':'confirmRegistrationPassword';const label=isInterview?'Penguji / Interview':'Petugas Pendaftaran';const n=$(newId).value.trim(),c=$(confirmId).value.trim();if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password tidak sama.');db.sectionPasswords[section]=n;save();$(newId).value='';$(confirmId).value='';alert('Password menu '+label+' berhasil diubah.');}
 function changeAdminPassword(){const old=$('adminOldPassword').value,n=$('adminNewPassword').value,c=$('adminConfirmPassword').value;if(old!==(db.admin.password||'123456'))return alert('Password lama tidak sesuai.');if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password baru tidak sama.');db.admin.password=n;save();$('adminOldPassword').value=$('adminNewPassword').value=$('adminConfirmPassword').value='';alert('Password admin berhasil diubah dan disimpan pada browser ini.');}
 function adminLogout(){adminUnlocked=false;$('adminLoginPanel').style.display='block';$('adminControlPanel').style.display='none';$('adminPasswordInput').value='';showPage('dashboard')}
-function fillSettings(){ $('schoolName').value=db.school.name||'';$('schoolYear').value=db.school.year||'';$('schoolHead').value=db.school.head||'';$('schoolAddress').value=db.school.address||''} $('schoolForm').onsubmit=e=>{e.preventDefault();db.school={name:$('schoolName').value,year:$('schoolYear').value,head:$('schoolHead').value,address:$('schoolAddress').value};save();alert('Identitas sekolah disimpan.');render()};
-/* Aplikasi online menggunakan Google Sheets melalui Google Apps Script. */
-render();showPage('dashboard');loadCloudDatabase();
-</script><div id="editStudentModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:9999;align-items:center;justify-content:center;padding:18px">
+function unlockSystemSettings(){
+  const entered=$('systemSettingsPasswordInput').value;
+  if(entered!==(db.systemSettingsPassword||'123456')){alert('Password Pengaturan Sistem salah.');return;}
+  systemSettingsUnlocked=true;
+  $('systemSettingsLogin').style.display='none';
+  $('systemSettingsProtected').style.display='block';
+  $('systemSettingsPasswordInput').value='';
+  fillSettings();
+}
+function changeSystemSettingsPassword(){
+  if(!systemSettingsUnlocked)return alert('Silakan buka Pengaturan Sistem terlebih dahulu.');
+  const old=$('systemSettingsOldPassword').value,n=$('systemSettingsNewPassword').value,c=$('systemSettingsConfirmPassword').value;
+  if(old!==(db.systemSettingsPassword||'123456'))return alert('Password lama Pengaturan Sistem tidak sesuai.');
+  if(n.length<6)return alert('Password baru minimal 6 karakter.');
+  if(n!==c)return alert('Konfirmasi password baru tidak sama.');
+  db.systemSettingsPassword=n;save();
+  $('systemSettingsOldPassword').value=$('systemSettingsNewPassword').value=$('systemSettingsConfirmPassword').value='';
+  alert('Password Pengaturan Sistem berhasil diubah.');
+}
+function updateSchoolYearBadge(){
+  const school=db.school||(db.school={});
+  const tk=String((school.TK&&school.TK.year)||'2026/2027');
+  const sd=String((school.SD&&school.SD.year)||'2026/2027');
+  const badge=$('schoolYearBadge');
+  if(!badge)return;
+  badge.textContent=(tk===sd?'TA '+tk:'TA TK '+tk+' · SD '+sd)+' · DATABASE ONLINE';
+}
+function fillSettings(){updateSchoolYearBadge();}
+render();updateSchoolYearBadge();showPage('dashboard');loadCloudDatabase();
+</script><div id="yearEditorModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:10010;align-items:center;justify-content:center;padding:16px">
+  <div class="panel" style="width:min(440px,100%);background:#fff;padding:22px;border-radius:16px;box-shadow:0 12px 40px #0003">
+    <h3 style="margin-top:0">Edit Tahun Ajaran</h3>
+    <p class="muted">Atur tahun ajaran untuk masing-masing jenjang sekolah.</p>
+    <label for="yearTK">Tahun Ajaran TK</label>
+    <input id="yearTK" type="text" placeholder="Contoh: 2026/2027">
+    <label for="yearSD" style="display:block;margin-top:14px">Tahun Ajaran SD</label>
+    <input id="yearSD" type="text" placeholder="Contoh: 2026/2027">
+    <div class="toolbar" style="justify-content:flex-end;margin-top:20px">
+      <button type="button" class="btn" onclick="closeYearEditor()">Batal</button>
+      <button type="button" class="btn primary" onclick="saveYearEditor()">Simpan Tahun</button>
+    </div>
+  </div>
+<script>
+function openYearEditor(){const school=db.school||(db.school={});$('yearTK').value=(school.TK&&school.TK.year)||'2026/2027';$('yearSD').value=(school.SD&&school.SD.year)||'2026/2027';$('yearEditorModal').style.display='flex';}
+function closeYearEditor(){$('yearEditorModal').style.display='none';}
+function saveYearEditor(){const tk=$('yearTK').value.trim(),sd=$('yearSD').value.trim();if(!tk||!sd)return alert('Silakan isi tahun ajaran TK dan SD.');db.school=db.school||{};db.school.TK=Object.assign({},db.school.TK||{},{year:tk});db.school.SD=Object.assign({},db.school.SD||{},{year:sd});save();updateSchoolYearBadge();closeYearEditor();alert('Tahun ajaran TK dan SD berhasil diperbarui.');}
+</script>
+<div id="editStudentModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:9999;align-items:center;justify-content:center;padding:18px">
 <div style="background:#fff;border-radius:14px;padding:22px;width:min(440px,100%);box-shadow:0 15px 45px #0003">
 <h3 style="margin:0 0 16px;color:#285b2b">Edit Data Calon Siswa</h3>
 <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:6px">Nama Siswa</label>
