@@ -49,7 +49,7 @@
  .recap-print-date{display:block!important;align-self:flex-end;font-size:10pt;color:#111;min-width:45%}
  .recap-print-footer .head-signature-inner{margin:0 25px 0 auto}
 }
-</style><style>
+.db-status{font-weight:bold}</style><style>
 .admin-student-accordion>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;user-select:none}
 .admin-student-accordion>summary::-webkit-details-marker{display:none}
 .admin-student-accordion>summary:after{content:"＋";margin-left:auto;font-size:20px;color:#397b36;font-weight:700}
@@ -75,8 +75,8 @@
 
 <button data-page="settings">⚙ &nbsp; Pengaturan & Sinkronisasi</button>
 <button data-page="admin">⚙ &nbsp; Admin</button>
-</nav></aside><main class="main"><header class="top"><h2 id="topTitle">Dashboard Data Siswa</h2><span id="cloudStatus" class="muted" style="font-size:12px;margin-left:auto;margin-right:12px">Menunggu login Firebase</span><span class="tag">TA 2026/2027 · FIREBASE ONLINE</span></header><div class="content">
-<section class="page active" id="page-dashboard"><div class="intro"><h1>Penerimaan SPMB SD DAN TK</h1><p>Ringkasan penerimaan pembayaran calon murid baru.</p></div><div class="notice" id="syncNotice">Data tersimpan otomatis pada browser/perangkat ini. Lakukan Backup secara berkala melalui menu Pengaturan & Sinkronisasi.</div><div class="dashboard-level-group">
+</nav></aside><main class="main"><header class="top"><h2 id="topTitle">Dashboard Data Siswa</h2><span id="cloudStatus" class="muted" style="font-size:12px;margin-left:auto;margin-right:12px">Menghubungkan ke Backendless...</span><span class="tag">TA 2026/2027 · DATABASE ONLINE</span></header><div class="content">
+<section class="page active" id="page-dashboard"><div class="intro"><h1>Penerimaan SPMB SD DAN TK</h1><p>Ringkasan penerimaan pembayaran calon murid baru.</p></div><div class="notice" id="syncNotice">Menghubungkan ke database online Backendless...</div><div class="dashboard-level-group">
 <h3>Rekapitulasi Calon Siswa TK</h3>
 <div class="cards dashboard-student-cards">
 <div class="card"><span class="k">Total Calon Siswa TK</span><strong id="dTKStudents">0</strong></div>
@@ -127,38 +127,87 @@
 <div class="panel"><h3>Ganti Password Menu Penguji / Interview</h3><p class="muted">Password ini digunakan saat membuka menu Penguji / Interview.</p><div class="toolbar"><input id="newInterviewPassword" type="password" placeholder="Password baru (min. 6 karakter)"><input id="confirmInterviewPassword" type="password" placeholder="Ulangi password baru"><button class="btn" type="button" onclick="changeSectionPassword('interview')">Simpan Password Penguji</button></div></div>
 <div class="panel"><h3>Ganti Password Menu Petugas Pendaftaran</h3><p class="muted">Password ini digunakan saat membuka menu Petugas Pendaftaran.</p><div class="toolbar"><input id="newRegistrationPassword" type="password" placeholder="Password baru (min. 6 karakter)"><input id="confirmRegistrationPassword" type="password" placeholder="Ulangi password baru"><button class="btn" type="button" onclick="changeSectionPassword('registration')">Simpan Password Petugas</button></div></div>
 <div class="panel"><h3>Ganti Password Admin</h3><div class="toolbar"><input id="adminOldPassword" type="password" placeholder="Password lama"><input id="adminNewPassword" type="password" placeholder="Password baru"><input id="adminConfirmPassword" type="password" placeholder="Ulangi password baru"><button class="btn" onclick="changeAdminPassword()">Simpan Password</button></div></div>
-<div class="panel"><h3>Kontrol Data</h3><div class="toolbar"><button class="btn secondary" type="button" onclick="exportBackup()">Backup Data</button><button class="btn yellow" type="button" onclick="document.getElementById('restoreBackupFile').click()">Restore Data</button><input id="restoreBackupFile" type="file" accept=".json,application/json" class="hide" onchange="restoreBackup(event)"><button class="btn red" onclick="adminLogout()">Keluar dari Admin</button><button class="btn secondary" onclick="firebaseLogout()">Keluar Akun Online</button></div><p class="muted">Pengaturan akses menu berlaku pada browser dan komputer tempat file HTML ini digunakan.</p></div>
+<div class="panel"><h3>Kontrol Data</h3><div class="toolbar"><button class="btn secondary" type="button" onclick="exportBackup()">Backup Data</button><button class="btn yellow" type="button" onclick="document.getElementById('restoreBackupFile').click()">Restore Data</button><input id="restoreBackupFile" type="file" accept=".json,application/json" class="hide" onchange="restoreBackup(event)"><button class="btn red" onclick="adminLogout()">Keluar dari Admin</button><span class="muted" style="font-size:12px">Database: Backendless</span></div><p class="muted">Pengaturan akses menu berlaku pada browser dan komputer tempat file HTML ini digunakan.</p></div>
 </div></section>
-<section class="page" id="page-settings"><div class="intro"><h1>Pengaturan & Sinkronisasi</h1><p>Hubungkan data pendaftar dari aplikasi SPMB versi HTML di komputer.</p></div><div class="panel"><h3>Identitas Sekolah</h3><form id="schoolForm" class="grid"><div class="field"><label>Nama Sekolah</label><input id="schoolName"></div><div class="field"><label>Tahun Ajaran</label><input id="schoolYear" placeholder="2026/2027"></div><div class="field"><label>Nama Kepala Sekolah</label><input id="schoolHead"></div><div class="field"><label>Alamat Sekolah</label><input id="schoolAddress"></div><div class="field full"><button class="btn">Simpan Identitas</button></div></form></div></section>
+<section class="page" id="page-settings"><div class="intro"><h1>Pengaturan & Sinkronisasi</h1><p>Database online Backendless untuk menyimpan data aplikasi dari seluruh perangkat.</p></div><div class="panel"><h3>Identitas Sekolah</h3><form id="schoolForm" class="grid"><div class="field"><label>Nama Sekolah</label><input id="schoolName"></div><div class="field"><label>Tahun Ajaran</label><input id="schoolYear" placeholder="2026/2027"></div><div class="field"><label>Nama Kepala Sekolah</label><input id="schoolHead"></div><div class="field"><label>Alamat Sekolah</label><input id="schoolAddress"></div><div class="field full"><button class="btn">Simpan Identitas</button></div></form></div></section>
 
 </div></main></div>
-<div id="firebaseLogin" style="display:none;position:fixed;inset:0;z-index:20000;background:#eaf3df;align-items:center;justify-content:center;padding:18px"><div style="background:#fff;border:1px solid #dce8d5;border-radius:20px;padding:28px;width:min(520px,100%);box-shadow:0 16px 45px #264b1720"><div style="font-size:13px;color:#4d8b45;font-weight:bold;margin-bottom:8px">SPMB-ALMADINAH • ONLINE</div><h2 style="color:#285b2b;margin:0 0 8px">Masuk ke Data SPMB</h2><p class="muted" style="margin:0 0 18px">Gunakan akun Firebase yang sudah didaftarkan pada Authentication.</p><label style="display:block;font-weight:bold;margin:12px 0 6px">Email Firebase</label><input id="fbEmail" type="email" autocomplete="username" placeholder="Email akun Firebase" style="width:100%"><label style="display:block;font-weight:bold;margin:12px 0 6px">Password Firebase</label><input id="fbPassword" type="password" autocomplete="current-password" placeholder="Password akun Firebase" style="width:100%"><button id="fbLoginBtn" class="btn" onclick="firebaseLogin()" style="width:100%;margin-top:18px">Masuk dan Sinkronkan</button><p style="font-size:12px;color:#718071;margin:14px 0 0">Data akan disinkronkan dengan Cloud Firestore setelah login berhasil. Jangan bagikan password kepada siapa pun.</p></div></div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const $=id=>document.getElementById(id);const money=n=>'Rp'+Number(n||0).toLocaleString('id-ID');const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const today=()=>new Date().toLocaleDateString('en-CA');
 const DEFAULT_DB={students:[],fees:[],payments:[],school:{name:'Nama Sekolah',year:'2026/2027',head:'',address:''},teachers:[],petugas:[],admin:{password:'123456',menuAccess:{}},sectionPasswords:{interview:'123456',registration:'654321'},lastSync:''};
 const STORAGE_KEY='spmb_payment_manual_v1';
+// Konfigurasi Backendless aplikasi SPMB_AL_MADINAH
+const BACKENDLESS_APP_ID='01DF0D61-1379-4DE8-9C0F-9CFC5A9BCA8D';
+const BACKENDLESS_REST_KEY='F0D3E1C5-0241-4967-94FE-ABE320E56B07';
+const BACKENDLESS_BASE=`https://api.backendless.com/${BACKENDLESS_APP_ID}/${BACKENDLESS_REST_KEY}/data/SPMBData`;
+let backendlessObjectId=null;
 function load(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');return saved&&typeof saved==='object'?Object.assign(structuredClone(DEFAULT_DB),saved):structuredClone(DEFAULT_DB)}catch(e){return structuredClone(DEFAULT_DB)}}
 let db=load();
-const firebaseConfig = {
-  apiKey: "AIzaSyAtLYPOzULrWBus904AV8sOIicEn_oS1Ys",
-  authDomain: "spmb-almadinah.firebaseapp.com",
-  projectId: "spmb-almadinah",
-  storageBucket: "spmb-almadinah.firebasestorage.app",
-  messagingSenderId: "511320788796",
-  appId: "1:511320788796:web:9c007874f08cd610ad1839"
-};
-let firebaseApp=null,auth=null,firestore=null,currentUser=null,cloudReady=false,cloudSaveTimer=null;
-try{firebaseApp=firebase.initializeApp(firebaseConfig);auth=firebase.auth();firestore=firebase.firestore();}catch(e){console.error('Firebase init:',e)}
-function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){alert('Penyimpanan browser penuh atau tidak tersedia. Ekspor Backup untuk menjaga data.');}if(currentUser&&cloudReady){clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(saveCloud,500);}}
-async function saveCloud(){if(!currentUser||!cloudReady)return;try{await firestore.collection('appData').doc(currentUser.uid).set({payload:db,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});setCloudStatus('Tersimpan online',true);}catch(e){console.error(e);setCloudStatus('Gagal menyimpan online: '+(e.code||e.message),false);}}
+let cloudReady=false,cloudSaveTimer=null,cloudLoading=true;
 function setCloudStatus(message,ok){const el=document.getElementById('cloudStatus');if(el){el.textContent=message;el.style.color=ok?'#26713a':'#b94040';}}
-async function firebaseLogin(){const email=document.getElementById('fbEmail').value.trim(),password=document.getElementById('fbPassword').value;const btn=document.getElementById('fbLoginBtn');if(!email||!password)return alert('Masukkan email dan password Firebase.');btn.disabled=true;btn.textContent='Menghubungkan...';try{await auth.signInWithEmailAndPassword(email,password);}catch(e){alert('Login Firebase gagal: '+(e.code||e.message));btn.disabled=false;btn.textContent='Masuk dan Sinkronkan';}}
-async function handleFirebaseUser(user){if(!user){currentUser=null;cloudReady=false;document.getElementById('firebaseLogin').style.display='flex';return;}currentUser=user;document.getElementById('firebaseLogin').style.display='none';setCloudStatus('Mengambil data dari Firebase...',true);try{const ref=firestore.collection('appData').doc(user.uid),snap=await ref.get();if(snap.exists&&snap.data().payload){db=Object.assign(structuredClone(DEFAULT_DB),snap.data().payload);localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}else{await ref.set({payload:db,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}db.teachers=Array.isArray(db.teachers)?db.teachers:[];db.petugas=Array.isArray(db.petugas)?db.petugas:[];db.admin=Object.assign({password:'123456',menuAccess:{}},db.admin||{});db.sectionPasswords=Object.assign({interview:'123456',registration:'654321'},db.sectionPasswords||{});cloudReady=true;render();showPage('dashboard');setCloudStatus('Terhubung ke Firebase — '+user.email,true);}catch(e){cloudReady=false;setCloudStatus('Tidak dapat mengakses Firestore: '+(e.code||e.message),false);alert('Login berhasil, tetapi database menolak akses. Periksa UID pada Firestore Rules. Detail: '+(e.code||e.message));}}
-function firebaseLogout(){if(auth)auth.signOut();}
+function save(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}
+  catch(e){alert('Penyimpanan browser penuh atau tidak tersedia. Ekspor Backup untuk menjaga data.');}
+  if(cloudReady){clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(saveCloud,700);}
+}
+async function saveCloud(){
+  if(!cloudReady)return;
+  setCloudStatus('Menyimpan ke Backendless...',true);
+  try{
+    const payload=JSON.stringify(db);
+    const url=backendlessObjectId?`${BACKENDLESS_BASE}/${encodeURIComponent(backendlessObjectId)}`:BACKENDLESS_BASE;
+    const response=await fetch(url,{
+      method:backendlessObjectId?'PUT':'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({payload})
+    });
+    const result=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(result?.message||result?.code||`HTTP ${response.status}`);
+    if(result?.objectId)backendlessObjectId=result.objectId;
+    db.lastSync=new Date().toISOString();
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){}
+    setCloudStatus('Tersimpan online di Backendless',true);
+    const notice=document.getElementById('syncNotice');
+    if(notice)notice.textContent='Data tersimpan online di Backendless. Perubahan akan disimpan otomatis.';
+  }catch(e){
+    console.error('Backendless save error:',e);
+    setCloudStatus('Gagal menyimpan ke Backendless',false);
+    alert('Gagal menyimpan data ke Backendless. Periksa izin CREATE/UPDATE pada tabel SPMBData dan koneksi internet. Detail: '+e.message);
+  }
+}
+async function loadCloudDatabase(){
+  setCloudStatus('Mengambil data dari Backendless...',true);
+  try{
+    const response=await fetch(BACKENDLESS_BASE,{method:'GET',headers:{'Accept':'application/json'}});
+    const result=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(result?.message||result?.code||`HTTP ${response.status}`);
+    if(Array.isArray(result)&&result.length){
+      const record=result[0];
+      backendlessObjectId=record.objectId||null;
+      const raw=record.payload;
+      const stored=typeof raw==='string'?JSON.parse(raw):raw;
+      if(stored&&typeof stored==='object')db=Object.assign(structuredClone(DEFAULT_DB),stored);
+    }
+    // Jika tabel masih kosong, pertahankan data lokal yang ada lalu buat rekaman online pertama.
+    db.teachers=Array.isArray(db.teachers)?db.teachers:[];
+    db.petugas=Array.isArray(db.petugas)?db.petugas:[];
+    db.admin=Object.assign({password:'123456',menuAccess:{}},db.admin||{});
+    db.sectionPasswords=Object.assign({interview:'123456',registration:'654321'},db.sectionPasswords||{});
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+    cloudReady=true;cloudLoading=false;render();showPage('dashboard');
+    setCloudStatus('Terhubung — Backendless',true);
+    const notice=document.getElementById('syncNotice');
+    if(notice)notice.textContent='Data tersimpan online di Backendless. Perubahan akan disimpan otomatis.';
+    if(!backendlessObjectId)saveCloud();
+  }catch(e){
+    cloudLoading=false;cloudReady=false;
+    console.error('Backendless load error:',e);
+    setCloudStatus('Gagal terhubung ke Backendless',false);
+    alert('Belum berhasil terhubung ke database Backendless. Pastikan izin RETRIEVE, CREATE, dan UPDATE untuk NotAuthenticatedUser pada tabel SPMBData sudah aktif. Detail: '+e.message);
+    render();showPage('dashboard');
+  }
+}
 
 db.teachers=Array.isArray(db.teachers)?db.teachers:[];db.petugas=Array.isArray(db.petugas)?db.petugas:[];db.admin=Object.assign({password:'123456',menuAccess:{}},db.admin||{});db.sectionPasswords=Object.assign({interview:'123456',registration:'654321'},db.sectionPasswords||{});let adminUnlocked=false;let currentStudentImportLevel='TK';let currentStudentMode='interview';
 function showPage(n){
@@ -216,7 +265,7 @@ function render(){
   $('dPaid').textContent=allStudents.filter(s=>paymentStatusLabel(s)==='Lunas').length;
   $('dDeferred').textContent=allStudents.filter(s=>s.admissionStatus==='Ditunda').length;
   $('dPassed').textContent=allStudents.filter(s=>s.admissionStatus==='Lulus').length;
-  $('syncNotice').textContent=cloudReady?'Data siswa dan pembayaran tersinkron dengan Firebase Cloud Firestore. Perubahan akan disimpan online secara otomatis.':(db.lastSync?'Data SPMB terakhir diperbarui: '+new Date(db.lastSync).toLocaleString('id-ID')+'.':'Data lokal browser. Login Firebase diperlukan untuk sinkronisasi online.');const levelRows=$('levelRows');if(levelRows)levelRows.innerHTML=['TK','SD','SMP'].map(l=>{let a=db.students.filter(s=>level(s)===l),bill=a.reduce((x,s)=>x+totalFor(s),0),paid=a.reduce((x,s)=>x+paidFor(s),0);return `<tr><td><b>${l}</b></td><td>${a.length}</td><td>${money(bill)}</td><td>${money(paid)}</td><td>${money(Math.max(0,bill-paid))}</td></tr>`}).join('');const recentPayments=$('recentPayments');if(recentPayments)recentPayments.innerHTML=db.payments.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(p=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return `<tr><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${money(p.amount)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Belum ada pembayaran.</td></tr>'}
+  $('syncNotice').textContent=cloudReady?'Data tersimpan online di Backendless. Perubahan akan disimpan otomatis.':(db.lastSync?'Data SPMB terakhir diperbarui: '+new Date(db.lastSync).toLocaleString('id-ID')+'.':'Menghubungkan ke database Backendless...');const levelRows=$('levelRows');if(levelRows)levelRows.innerHTML=['TK','SD','SMP'].map(l=>{let a=db.students.filter(s=>level(s)===l),bill=a.reduce((x,s)=>x+totalFor(s),0),paid=a.reduce((x,s)=>x+paidFor(s),0);return `<tr><td><b>${l}</b></td><td>${a.length}</td><td>${money(bill)}</td><td>${money(paid)}</td><td>${money(Math.max(0,bill-paid))}</td></tr>`}).join('');const recentPayments=$('recentPayments');if(recentPayments)recentPayments.innerHTML=db.payments.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(p=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return `<tr><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${money(p.amount)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Belum ada pembayaran.</td></tr>'}
 function openAddStudent(){$('addStudentLevelText').textContent='Jenjang '+currentStudentImportLevel;$('newStudentName').value='';$('newStudentParent').value='';$('newStudentGender').value='';$('addStudentModal').style.display='flex';$('newStudentName').focus()}
 function closeAddStudent(){$('addStudentModal').style.display='none'}
 function saveNewStudent(){const name=$('newStudentName').value.trim().toLocaleUpperCase('id-ID'),parent=$('newStudentParent').value.trim().toLocaleUpperCase('id-ID'),gender=$('newStudentGender').value;if(!name)return alert('Nama siswa wajib diisi.');if(!parent)return alert('Nama orang tua wajib diisi.');if(!gender)return alert('Pilih jenis kelamin siswa.');const duplicate=db.students.some(x=>level(x)===currentStudentImportLevel&&studentName(x).toLocaleLowerCase('id-ID')===name.toLocaleLowerCase('id-ID'));if(duplicate)return alert('Nama siswa tersebut sudah terdaftar pada jenjang '+currentStudentImportLevel+'.');db.students.push({id:'manual-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),fullName:name,gender:gender,jenisKelamin:gender,father:parent,parentName:parent,namaOrangTua:parent,schoolCategory:currentStudentImportLevel,registrationDate:localToday(),status:'Terdaftar',paymentStatus:'Belum Bayar',admissionStatus:'',examinerId:''});save();closeAddStudent();renderStudents();renderAdminStudentActions();render();if(currentStudentImportLevel==='TK')renderRecap('TK');else renderRecap('SD');alert('Berhasil disimpan. Data siswa '+name+' telah ditambahkan ke jenjang '+currentStudentImportLevel+'.')}
@@ -244,7 +293,7 @@ function editStudent(button){const id=button.dataset.id,s=db.students.find(x=>St
 function closeStudentEditor(){editingStudentId=null;$('editStudentModal').style.display='none'}
 function saveStudentEditor(){const s=db.students.find(x=>String(x.id)===editingStudentId);if(!s)return closeStudentEditor();const name=$('editStudentName').value.trim().toLocaleUpperCase('id-ID'),parent=$('editStudentParent').value.trim().toLocaleUpperCase('id-ID'),gender=$('editStudentGender').value;if(!name)return alert('Nama siswa tidak boleh kosong.');if(!parent)return alert('Nama orang tua tidak boleh kosong.');if(!gender)return alert('Pilih jenis kelamin siswa.');s.gender=gender;s.jenisKelamin=gender;s.fullName=name;s.father=parent;s.parentName=parent;s.namaOrangTua=parent;save();closeStudentEditor();renderStudents();renderAdminStudentActions();render();alert('Nama siswa dan nama orang tua berhasil diperbarui.')}
 function deleteStudent(button){const id=button.dataset.id,s=db.students.find(x=>String(x.id)===id);if(!s)return;if(!confirm('Hapus data siswa '+studentName(s)+'?'))return;db.students=db.students.filter(x=>String(x.id)!==id);db.payments=db.payments.filter(x=>String(x.studentId)!==id);save();renderStudents();render();alert('Data siswa berhasil dihapus.')}
-if($('feeForm'))$('feeForm').onsubmit=e=>{e.preventDefault();db.fees.push({id:String(Date.now()),level:$('feeLevel').value,name:$('feeName').value.trim(),amount:Number($('feeAmount').value),note:$('feeNote').value.trim()});save();e.target.reset();renderFees();render();alert('Jenis biaya berhasil disimpan.')};
+$('feeForm').onsubmit=e=>{e.preventDefault();db.fees.push({id:String(Date.now()),level:$('feeLevel').value,name:$('feeName').value.trim(),amount:Number($('feeAmount').value),note:$('feeNote').value.trim()});save();e.target.reset();renderFees();render();alert('Jenis biaya berhasil disimpan.')};
 
 function spreadsheetReady(){if(!window.XLSX){alert('Fitur Excel memerlukan koneksi internet untuk memuat pustaka Excel. Sambungkan internet lalu muat ulang aplikasi.');return false}return true}
 function saveWorkbook(rows,fileName,sheetName){if(!spreadsheetReady())return;const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:32},{wch:32}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,sheetName);XLSX.writeFile(wb,fileName)}
@@ -253,8 +302,8 @@ function exportStudentsExcel(){const rows=[['Nama Siswa','Nama Orang Tua'],...db
 function importStudentsExcel(event){const file=event.target.files[0];if(!file)return;if(!spreadsheetReady()){event.target.value='';return}const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});if(!rows.length)throw new Error('File Excel kosong.');const keys=Object.keys(rows[0]);if(!keys.some(k=>k.toLowerCase().trim()==='nama siswa')||!keys.some(k=>k.toLowerCase().trim()==='nama orang tua'))throw new Error('Kolom wajib: Nama Siswa dan Nama Orang Tua. Gunakan templet yang disediakan.');let added=0,updated=0;rows.forEach(row=>{const get=label=>{const k=Object.keys(row).find(x=>x.toLowerCase().trim()===label);return k?String(row[k]||'').trim():''};const name=get('nama siswa'),parent=get('nama orang tua');if(!name)return;const existing=db.students.find(x=>studentName(x).toLowerCase()===name.toLowerCase()&&level(x)===currentStudentImportLevel);if(existing){existing.father=parent;existing.parentName=parent;if(!existing.registrationDate)existing.registrationDate=localToday();updated++}else{db.students.push({id:'excel-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fullName:name.toLocaleUpperCase('id-ID'),father:parent.toLocaleUpperCase('id-ID'),parentName:parent.toLocaleUpperCase('id-ID'),schoolCategory:currentStudentImportLevel,registrationDate:localToday(),regNo:'',status:'Impor Excel'});added++}});save();render();renderStudents();alert('Impor Excel berhasil. '+added+' siswa ditambahkan dan '+updated+' data diperbarui.')}catch(err){alert(err.message||'Gagal membaca file Excel.')}event.target.value=''};reader.readAsArrayBuffer(file)}
 function renderFees(){$('feeRows').innerHTML=db.fees.map((f,i)=>`<tr><td>${f.level}</td><td>${esc(f.name)}</td><td>${money(f.amount)}</td><td>${esc(f.note)}</td><td><button class="btn red small" onclick="delFee('${f.id}')">Hapus</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Belum ada jenis biaya.</td></tr>'}function delFee(id){if(confirm('Hapus jenis biaya ini?')){db.fees=db.fees.filter(f=>f.id!==id);save();renderFees();fillPaymentForm();render()}}
 function fillPaymentForm(){$('payStudent').innerHTML='<option value="">-- Pilih siswa --</option>'+db.students.map(s=>`<option value="${esc(String(s.id))}">${esc(s.regNo||'')} — ${esc(studentName(s))} (${level(s)})</option>`).join('');$('payDate').value=today();$('payFee').innerHTML='<option value="">-- Pilih jenis biaya --</option>'+db.fees.map(f=>`<option value="${f.id}">${f.level} — ${esc(f.name)} (${money(f.amount)})</option>`).join('')}
-if($('payStudent'))$('payStudent').onchange=()=>{let s=db.students.find(s=>String(s.id)===$('payStudent').value);if(s){let f=db.fees.find(f=>f.level===level(s));if(f)$('payFee').value=f.id}};
-if($('paymentForm'))$('paymentForm').onsubmit=e=>{e.preventDefault();let s=db.students.find(s=>String(s.id)===$('payStudent').value),f=db.fees.find(f=>f.id===$('payFee').value),amount=Number($('payAmount').value);if(!s||!f||!amount)return alert('Lengkapi data pembayaran.');let p={id:String(Date.now()),receipt:'KWT-'+new Date().getFullYear()+'-'+String(db.payments.length+1).padStart(5,'0'),studentId:String(s.id),feeId:f.id,feeName:f.name,level:level(s),date:$('payDate').value,amount,method:$('payMethod').value,officer:$('payOfficer').value,note:$('payNote').value};db.payments.push(p);save();render();e.target.reset();fillPaymentForm();showReceipt(p.id)};
+$('payStudent').onchange=()=>{let s=db.students.find(s=>String(s.id)===$('payStudent').value);if(s){let f=db.fees.find(f=>f.level===level(s));if(f)$('payFee').value=f.id}};
+$('paymentForm').onsubmit=e=>{e.preventDefault();let s=db.students.find(s=>String(s.id)===$('payStudent').value),f=db.fees.find(f=>f.id===$('payFee').value),amount=Number($('payAmount').value);if(!s||!f||!amount)return alert('Lengkapi data pembayaran.');let p={id:String(Date.now()),receipt:'KWT-'+new Date().getFullYear()+'-'+String(db.payments.length+1).padStart(5,'0'),studentId:String(s.id),feeId:f.id,feeName:f.name,level:level(s),date:$('payDate').value,amount,method:$('payMethod').value,officer:$('payOfficer').value,note:$('payNote').value};db.payments.push(p);save();render();e.target.reset();fillPaymentForm();showReceipt(p.id)};
 function showReceipt(id){let p=db.payments.find(x=>x.id===id),s=db.students.find(x=>String(x.id)===p.studentId)||{};$('receiptArea').innerHTML=`<h2>${esc(db.school.name)}</h2><p>${esc(db.school.address)}</p><div class="line"></div><h3 style="text-align:center">BUKTI PEMBAYARAN SPMB</h3><p style="text-align:center">Nomor: <b>${esc(p.receipt)}</b></p><table><tr><td width="38%">Nama Siswa</td><td>: <b>${esc(studentName(s))}</b></td></tr><tr><td>Nomor Pendaftaran</td><td>: ${esc(s.regNo||'—')}</td></tr><tr><td>Jenjang</td><td>: ${level(s)}</td></tr><tr><td>Tanggal</td><td>: ${p.date}</td></tr><tr><td>Jenis Pembayaran</td><td>: ${esc(p.feeName)}</td></tr><tr><td>Metode</td><td>: ${esc(p.method)}</td></tr><tr><td>Jumlah Dibayar</td><td>: <b>${money(p.amount)}</b></td></tr><tr><td>Terbilang</td><td>: ${terbilang(p.amount)} rupiah</td></tr><tr><td>Petugas</td><td>: ${esc(p.officer||'—')}</td></tr></table><div class="sign"><div>Penyetor,<br><br><br>(........................)</div><div>Penerima,<br><br><br>(${esc(p.officer||'........................')})</div></div>`;showPage('receipt')}
 function terbilang(n){let a=['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];n=Math.floor(n);if(n<12)return a[n];if(n<20)return terbilang(n-10)+' belas';if(n<100)return terbilang(Math.floor(n/10))+' puluh '+terbilang(n%10);if(n<200)return 'seratus '+terbilang(n-100);if(n<1000)return terbilang(Math.floor(n/100))+' ratus '+terbilang(n%100);if(n<2000)return 'seribu '+terbilang(n-1000);if(n<1e6)return terbilang(Math.floor(n/1000))+' ribu '+terbilang(n%1000);if(n<1e9)return terbilang(Math.floor(n/1e6))+' juta '+terbilang(n%1e6);return String(n)}
 function renderHistory(){let q=$('historySearch').value.toLowerCase(),l=$('historyLevel').value,a=db.payments.filter(p=>{let s=db.students.find(x=>String(x.id)===p.studentId)||{};return (!l||level(s)===l)&&(!q||[p.receipt,studentName(s)].some(v=>String(v||'').toLowerCase().includes(q)))}).slice().sort((x,y)=>y.date.localeCompare(x.date));$('historyRows').innerHTML=a.map(p=>{let s=db.students.find(x=>String(x.id)===p.studentId)||{};return `<tr><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${esc(p.feeName)}</td><td>${money(p.amount)}</td><td>${esc(p.method)}</td><td><button class="btn secondary small" onclick="showReceipt('${p.id}')">Kwitansi</button></td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Belum ada transaksi.</td></tr>'}
@@ -371,9 +420,8 @@ function changeSectionPassword(section){if(!adminUnlocked){alert('Silakan login 
 function changeAdminPassword(){const old=$('adminOldPassword').value,n=$('adminNewPassword').value,c=$('adminConfirmPassword').value;if(old!==(db.admin.password||'123456'))return alert('Password lama tidak sesuai.');if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password baru tidak sama.');db.admin.password=n;save();$('adminOldPassword').value=$('adminNewPassword').value=$('adminConfirmPassword').value='';alert('Password admin berhasil diubah dan disimpan pada browser ini.');}
 function adminLogout(){adminUnlocked=false;$('adminLoginPanel').style.display='block';$('adminControlPanel').style.display='none';$('adminPasswordInput').value='';showPage('dashboard')}
 function fillSettings(){ $('schoolName').value=db.school.name||'';$('schoolYear').value=db.school.year||'';$('schoolHead').value=db.school.head||'';$('schoolAddress').value=db.school.address||''} $('schoolForm').onsubmit=e=>{e.preventDefault();db.school={name:$('schoolName').value,year:$('schoolYear').value,head:$('schoolHead').value,address:$('schoolAddress').value};save();alert('Identitas sekolah disimpan.');render()};
-/* Aplikasi online: akun Firebase diperlukan untuk membaca dan menyimpan data lintas perangkat. */
-render();showPage('dashboard');
-if(auth){auth.onAuthStateChanged(handleFirebaseUser);}else{document.getElementById('firebaseLogin').style.display='flex';setCloudStatus('Firebase belum dapat dimuat. Periksa koneksi internet.',false);}
+/* Aplikasi online menggunakan Google Sheets melalui Google Apps Script. */
+render();showPage('dashboard');loadCloudDatabase();
 </script><div id="editStudentModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:9999;align-items:center;justify-content:center;padding:18px">
 <div style="background:#fff;border-radius:14px;padding:22px;width:min(440px,100%);box-shadow:0 15px 45px #0003">
 <h3 style="margin:0 0 16px;color:#285b2b">Edit Data Calon Siswa</h3>
