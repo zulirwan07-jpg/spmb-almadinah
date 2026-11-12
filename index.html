@@ -66,55 +66,41 @@
 #page-dashboard .dashboard-level-group{margin:10px 0 12px}
 #page-dashboard .dashboard-level-group h3{font-size:15px;margin:0 0 7px}
 #page-dashboard .dashboard-student-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
-#page-dashboard .dashboard-level-group:last-child .dashboard-student-cards{grid-template-columns:repeat(5,minmax(0,1fr))}
+#page-dashboard .dashboard-tk-status .dashboard-student-cards,
+#page-dashboard .dashboard-sd-status .dashboard-student-cards{grid-template-columns:repeat(5,minmax(0,1fr))}
 #page-dashboard .dashboard-student-cards .card{min-height:0;padding:10px 12px;border-radius:10px}
 #page-dashboard .dashboard-student-cards .card .k{font-size:11px;line-height:1.25}
 #page-dashboard .dashboard-student-cards .card strong{font-size:20px;margin-top:4px}
 @media(max-width:850px){
- #page-dashboard .dashboard-level-group:last-child .dashboard-student-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #page-dashboard .dashboard-tk-status .dashboard-student-cards,
+ #page-dashboard .dashboard-sd-status .dashboard-student-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:620px){
  #page-dashboard .intro h1{font-size:19px}
  #page-dashboard .dashboard-student-cards,
- #page-dashboard .dashboard-level-group:last-child .dashboard-student-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-dashboard .dashboard-tk-status .dashboard-student-cards,
+ #page-dashboard .dashboard-sd-status .dashboard-student-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
  #page-dashboard .dashboard-student-cards .card{padding:9px}
  #page-dashboard .dashboard-student-cards .card strong{font-size:18px}
 }
 
-/* Warna berbeda untuk setiap kartu ringkasan Dashboard */
-#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(1){
-  background:#e7f3e5;border-color:#b9d9b3
-}
-#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(2){
-  background:#e6f2ff;border-color:#b9d8f5
-}
-#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(3){
-  background:#fff2d9;border-color:#f2d69a
-}
-#page-dashboard .dashboard-level-group:nth-of-type(2) .dashboard-student-cards .card:nth-child(1){
-  background:#e9e5ff;border-color:#c9c0f4
-}
-#page-dashboard .dashboard-level-group:nth-of-type(2) .dashboard-student-cards .card:nth-child(2){
-  background:#dff5f2;border-color:#afe0d8
-}
-#page-dashboard .dashboard-level-group:nth-of-type(2) .dashboard-student-cards .card:nth-child(3){
-  background:#ffe8ed;border-color:#f4c0cc
-}
-#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(1){
-  background:#ffe5e5;border-color:#f3baba
-}
-#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(2){
-  background:#fff0d8;border-color:#f0d09b
-}
-#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(3){
-  background:#e2f4e5;border-color:#b8dbbf
-}
-#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(4){
-  background:#e7edff;border-color:#c0cdf5
-}
-#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(5){
-  background:#f1e7ff;border-color:#d7c3f2
-}
+/* Warna berbeda untuk ringkasan TK, SD, serta status masing-masing jenjang */
+#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(1){background:#e7f3e5;border-color:#b9d9b3}
+#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(2){background:#e6f2ff;border-color:#b9d8f5}
+#page-dashboard .dashboard-level-group:nth-of-type(1) .dashboard-student-cards .card:nth-child(3){background:#fff2d9;border-color:#f2d69a}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(1){background:#e9e5ff;border-color:#c9c0f4}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(2){background:#dff5f2;border-color:#afe0d8}
+#page-dashboard .dashboard-level-group:nth-of-type(3) .dashboard-student-cards .card:nth-child(3){background:#ffe8ed;border-color:#f4c0cc}
+#page-dashboard .dashboard-tk-status .dashboard-student-cards .card:nth-child(1){background:#ffe5e5;border-color:#f3baba}
+#page-dashboard .dashboard-tk-status .dashboard-student-cards .card:nth-child(2){background:#fff0d8;border-color:#f0d09b}
+#page-dashboard .dashboard-tk-status .dashboard-student-cards .card:nth-child(3){background:#e2f4e5;border-color:#b8dbbf}
+#page-dashboard .dashboard-tk-status .dashboard-student-cards .card:nth-child(4){background:#e7edff;border-color:#c0cdf5}
+#page-dashboard .dashboard-tk-status .dashboard-student-cards .card:nth-child(5){background:#f1e7ff;border-color:#d7c3f2}
+#page-dashboard .dashboard-sd-status .dashboard-student-cards .card:nth-child(1){background:#ffe9e0;border-color:#f2c4ad}
+#page-dashboard .dashboard-sd-status .dashboard-student-cards .card:nth-child(2){background:#fff4cf;border-color:#eadb9b}
+#page-dashboard .dashboard-sd-status .dashboard-student-cards .card:nth-child(3){background:#e2f4e5;border-color:#b8dbbf}
+#page-dashboard .dashboard-sd-status .dashboard-student-cards .card:nth-child(4){background:#e6efff;border-color:#c1d4f4}
+#page-dashboard .dashboard-sd-status .dashboard-student-cards .card:nth-child(5){background:#eee7ff;border-color:#d1c3f2}
 #page-dashboard .dashboard-student-cards .card{
   border-width:1px;border-style:solid;box-shadow:0 2px 7px #2443230a
 }
@@ -147,6 +133,15 @@
 <div class="card"><span class="k">Laki-laki TK</span><strong id="dTKMale">0</strong></div>
 <div class="card"><span class="k">Perempuan TK</span><strong id="dTKFemale">0</strong></div>
 </div></div>
+<div class="dashboard-level-group dashboard-tk-status">
+<h3>Rekapitulasi Status Pembayaran dan Penerimaan TK</h3>
+<div class="cards dashboard-student-cards">
+<div class="card"><span class="k">Total Belum Bayar TK</span><strong id="dTKUnpaid">0</strong></div>
+<div class="card"><span class="k">Total Setengah Bayar TK</span><strong id="dTKPartial">0</strong></div>
+<div class="card"><span class="k">Total Lunas TK</span><strong id="dTKPaid">0</strong></div>
+<div class="card"><span class="k">Total Ditunda TK</span><strong id="dTKDeferred">0</strong></div>
+<div class="card"><span class="k">Total Lulus TK</span><strong id="dTKPassed">0</strong></div>
+</div></div>
 <div class="dashboard-level-group">
 <h3>Rekapitulasi Calon Siswa SD</h3>
 <div class="cards dashboard-student-cards">
@@ -154,14 +149,14 @@
 <div class="card"><span class="k">Laki-laki SD</span><strong id="dSDMale">0</strong></div>
 <div class="card"><span class="k">Perempuan SD</span><strong id="dSDFemale">0</strong></div>
 </div></div>
-<div class="dashboard-level-group">
-<h3>Rekapitulasi Status Pembayaran dan Penerimaan</h3>
+<div class="dashboard-level-group dashboard-sd-status">
+<h3>Rekapitulasi Status Pembayaran dan Penerimaan SD</h3>
 <div class="cards dashboard-student-cards">
-<div class="card"><span class="k">Total Belum Bayar</span><strong id="dUnpaid">0</strong></div>
-<div class="card"><span class="k">Total Setengah Bayar</span><strong id="dPartial">0</strong></div>
-<div class="card"><span class="k">Total Lunas</span><strong id="dPaid">0</strong></div>
-<div class="card"><span class="k">Total Ditunda</span><strong id="dDeferred">0</strong></div>
-<div class="card"><span class="k">Total Lulus</span><strong id="dPassed">0</strong></div>
+<div class="card"><span class="k">Total Belum Bayar SD</span><strong id="dSDUnpaid">0</strong></div>
+<div class="card"><span class="k">Total Setengah Bayar SD</span><strong id="dSDPartial">0</strong></div>
+<div class="card"><span class="k">Total Lunas SD</span><strong id="dSDPaid">0</strong></div>
+<div class="card"><span class="k">Total Ditunda SD</span><strong id="dSDDeferred">0</strong></div>
+<div class="card"><span class="k">Total Lulus SD</span><strong id="dSDPassed">0</strong></div>
 </div></div></section>
 <section class="page" id="page-students"><div class="intro"><h1>Data Calon Siswa</h1><p>Daftar hanya menampilkan nama siswa dan nama orang tua dari data SPMB yang diimpor.</p></div><div class="panel"><div class="toolbar"><input id="studentSearch" placeholder="Cari nama siswa atau orang tua..." oninput="renderStudents()"><span id="studentCount" class="muted"></span></div><div class="tablewrap"><table><thead><tr><th>Tanggal Masuk</th><th>No.</th><th>Nama Siswa</th><th>L/P</th><th>Nama Orang Tua</th><th id="studentActionHeader">Aksi</th><th id="studentOfficerHeader">Petugas</th></tr></thead><tbody id="studentRows"></tbody></table></div></div></section>
 
@@ -329,12 +324,15 @@ function render(){
   $('dSDStudents').textContent=sd.length;
   $('dSDMale').textContent=countGender(sd,maleKeys);
   $('dSDFemale').textContent=countGender(sd,femaleKeys);
-  const allStudents=db.students;
-  $('dUnpaid').textContent=allStudents.filter(s=>paymentStatusLabel(s)==='Belum Bayar').length;
-  $('dPartial').textContent=allStudents.filter(s=>paymentStatusLabel(s)==='Setengah Bayar').length;
-  $('dPaid').textContent=allStudents.filter(s=>paymentStatusLabel(s)==='Lunas').length;
-  $('dDeferred').textContent=allStudents.filter(s=>s.admissionStatus==='Ditunda').length;
-  $('dPassed').textContent=allStudents.filter(s=>s.admissionStatus==='Lulus').length;
+  const setStatusCounts=(prefix,list)=>{
+    $(prefix+'Unpaid').textContent=list.filter(s=>paymentStatusLabel(s)==='Belum Bayar').length;
+    $(prefix+'Partial').textContent=list.filter(s=>paymentStatusLabel(s)==='Setengah Bayar').length;
+    $(prefix+'Paid').textContent=list.filter(s=>paymentStatusLabel(s)==='Lunas').length;
+    $(prefix+'Deferred').textContent=list.filter(s=>s.admissionStatus==='Ditunda').length;
+    $(prefix+'Passed').textContent=list.filter(s=>s.admissionStatus==='Lulus').length;
+  };
+  setStatusCounts('dTK',tk);
+  setStatusCounts('dSD',sd);
   $('syncNotice').textContent=cloudReady?'Data tersimpan online di Backendless. Perubahan akan disimpan otomatis.':(db.lastSync?'Data SPMB terakhir diperbarui: '+new Date(db.lastSync).toLocaleString('id-ID')+'.':'Menghubungkan ke database Backendless...');const levelRows=$('levelRows');if(levelRows)levelRows.innerHTML=['TK','SD','SMP'].map(l=>{let a=db.students.filter(s=>level(s)===l),bill=a.reduce((x,s)=>x+totalFor(s),0),paid=a.reduce((x,s)=>x+paidFor(s),0);return `<tr><td><b>${l}</b></td><td>${a.length}</td><td>${money(bill)}</td><td>${money(paid)}</td><td>${money(Math.max(0,bill-paid))}</td></tr>`}).join('');const recentPayments=$('recentPayments');if(recentPayments)recentPayments.innerHTML=db.payments.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(p=>{let s=db.students.find(s=>String(s.id)===p.studentId)||{};return `<tr><td>${p.date}</td><td>${esc(p.receipt)}</td><td>${esc(studentName(s))}</td><td>${level(s)}</td><td>${money(p.amount)}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">Belum ada pembayaran.</td></tr>'}
 function prepareStudentAdmin(jenjang){currentStudentImportLevel=jenjang;}
 function openAddStudent(){$('addStudentLevelText').textContent='Jenjang '+currentStudentImportLevel;$('newStudentName').value='';$('newStudentParent').value='';$('newStudentGender').value='';$('addStudentModal').style.display='flex';$('newStudentName').focus()}
