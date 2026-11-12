@@ -39,6 +39,7 @@
 .signature-space{height:62px}
 .head-signature-name{font-weight:700;text-decoration:underline;text-transform:uppercase}
 @media print{.recap-head-signature{display:block!important}.head-signature-inner{break-inside:avoid}}
+/* Blok Mengetahui, Kepala Sekolah tetap ditampilkan saat cetak rekapitulasi */
 #adminStatusPrintArea .head-signature-inner{display:block}
 
 .recap-print-footer{display:none}
@@ -187,7 +188,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);const money=n=>'Rp'+Number(n||0).toLocaleString('id-ID');const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const today=()=>new Date().toLocaleDateString('en-CA');
-const DEFAULT_DB={students:[],fees:[],payments:[],school:{TK:{name:'Nama Sekolah TK',year:'2026/2027',head:'',address:''},SD:{name:'Nama Sekolah SD',year:'2026/2027',head:'',address:''}},teachers:[],petugas:[],admin:{password:'123456',menuAccess:{}},sectionPasswords:{interview:'123456',registration:'654321'},systemSettingsPassword:'123456',lastSync:''};
+const DEFAULT_DB={students:[],fees:[],payments:[],school:{TK:{name:'Nama Sekolah TK',year:'2026/2027',head:'',address:''},SD:{name:'Nama Sekolah SD',year:'2026/2027',head:'',address:''}},teachers:[],petugas:[],admin:{password:'123456',menuAccess:{}},sectionPasswords:{interview:'123456',registration:'654321'},systemSettingsPassword:'123456',ageReferenceDate:'',lastSync:''};
 const STORAGE_KEY='spmb_payment_manual_v1';
 // Konfigurasi Backendless aplikasi SPMB_AL_MADINAH
 const BACKENDLESS_APP_ID='01DF0D61-1379-4DE8-9C0F-9CFC5A9BCA8D';
@@ -205,6 +206,7 @@ function normalizeSchoolData(data){
     };
   }
   data.systemSettingsPassword=data.systemSettingsPassword||'123456';
+  data.ageReferenceDate=normalizeBirthDate(data.ageReferenceDate)||'';
   return data;
 }
 db=normalizeSchoolData(db);
@@ -448,9 +450,7 @@ function resetOneStudentStatus(button){
 function petugasDisplayName(s){const p=db.petugas.find(t=>String(t.id)===String(s.petugasId||''));return p?p.name:'—'}
 function printDateIndonesian(){return new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
 function headmasterSignatureHtml(jenjang){
-  const school=(db.school&&db.school[jenjang])||{};
-  const name=String(school.head||school.namaKepalaSekolah||'').trim();
-  return `<div class="head-signature-inner"><div>Mengetahui,</div><div>Kepala Sekolah</div><div class="signature-space"></div><div class="head-signature-name">${esc(name||'........................................')}</div></div>`;
+  return `<div class="head-signature-inner"><div>Mengetahui,</div><div>Kepala Sekolah</div><div class="signature-space"></div><div class="head-signature-name">........................................</div></div>`;
 }
 function renderRecap(jenjang,records){const a=records||recapStudents(jenjang),prefix=jenjang==='TK'?'recapTK':'recapSD';$(prefix+'Signature').innerHTML=headmasterSignatureHtml(jenjang);$(prefix+'PrintDate').textContent='Tanggal Cetak: '+printDateIndonesian();$(prefix+'Count').textContent=a.length+' siswa';$(prefix+'Rows').innerHTML=a.map((s,i)=>`<tr><td>${esc(formatRegistrationDate(s.registrationDate))}</td><td>${i+1}</td><td><b>${esc(studentName(s))}</b></td><td><b>${genderShort(s)}</b></td><td>${esc(calculateAge(s.birthDate||s.tanggalLahir))}</td><td>${esc(parentDisplayName(s))}</td><td><span class="btn small ${paymentStatusClass(s)}" style="display:inline-block;cursor:default;padding:7px 12px;border-radius:8px;font-weight:700;${paymentStatusInlineStyle(s)}">${paymentStatusLabel(s)}</span></td><td>${admissionStatusMarkup(s)}</td><td>${esc(examinerDisplayName(s))}</td><td>${esc(petugasDisplayName(s))}</td><td><button class="btn red small" data-id="${esc(String(s.id))}" onclick="resetOneStudentStatus(this)">Reset Status</button></td></tr>`).join('')||'<tr><td colspan="11" class="empty">Belum ada data calon siswa.</td></tr>'}
 function printRecap(jenjang){
@@ -539,8 +539,8 @@ function updateSchoolYearBadge(){
 }
 function fillSettings(){updateSchoolYearBadge();const input=$('ageReferenceDateInput');if(input)input.value=normalizeBirthDate(db.ageReferenceDate)||'';updateAgeReferenceDateInfo();}
 function updateAgeReferenceDateInfo(){const el=$('ageReferenceDateInfo');if(!el)return;const iso=normalizeBirthDate(db.ageReferenceDate);el.textContent=iso?'Umur siswa dihitung per tanggal '+formatBirthDate(iso)+'.':'Umur siswa dihitung berdasarkan tanggal hari ini.';}
-function saveAgeReferenceDate(){if(!systemSettingsUnlocked)return alert('Silakan buka Pengaturan Sistem terlebih dahulu.');const value=normalizeBirthDate($('ageReferenceDateInput').value);if(!$('ageReferenceDateInput').value)return alert('Pilih tanggal acuan terlebih dahulu. Untuk kembali ke tanggal hari ini, gunakan tombol Gunakan Tanggal Hari Ini.');if(!value)return alert('Tanggal acuan tidak valid.');db.ageReferenceDate=value;save();updateAgeReferenceDateInfo();render();renderStudents();renderAdminStudentActions();renderRecap('TK');renderRecap('SD');alert('Tanggal acuan umur berhasil disimpan. Umur seluruh siswa sekarang dihitung per '+formatBirthDate(value)+'.');}
-function resetAgeReferenceDate(){if(!systemSettingsUnlocked)return alert('Silakan buka Pengaturan Sistem terlebih dahulu.');db.ageReferenceDate='';save();if($('ageReferenceDateInput'))$('ageReferenceDateInput').value='';updateAgeReferenceDateInfo();render();renderStudents();renderAdminStudentActions();renderRecap('TK');renderRecap('SD');alert('Pengaturan dikembalikan. Umur siswa sekarang dihitung berdasarkan tanggal hari ini.')}
+async function saveAgeReferenceDate(){if(!systemSettingsUnlocked)return alert('Silakan buka Pengaturan Sistem terlebih dahulu.');const input=$('ageReferenceDateInput');const value=normalizeBirthDate(input&&input.value);if(!input||!input.value)return alert('Pilih tanggal acuan terlebih dahulu. Untuk kembali ke tanggal hari ini, gunakan tombol Gunakan Tanggal Hari Ini.');if(!value)return alert('Tanggal acuan tidak valid.');db.ageReferenceDate=value;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){return alert('Tanggal acuan tidak dapat disimpan di browser.');}clearTimeout(cloudSaveTimer);if(cloudReady){await saveCloud();}updateAgeReferenceDateInfo();render();renderStudents();renderAdminStudentActions();renderRecap('TK');renderRecap('SD');const check=normalizeBirthDate(db.ageReferenceDate);if(check!==value)return alert('Tanggal acuan belum berhasil diterapkan. Silakan muat ulang aplikasi dan coba kembali.');alert('Tanggal acuan umur berhasil disimpan'+(cloudReady?' ke Backendless':' di browser')+'. Umur seluruh siswa sekarang dihitung per '+formatBirthDate(value)+'.');}
+async function resetAgeReferenceDate(){if(!systemSettingsUnlocked)return alert('Silakan buka Pengaturan Sistem terlebih dahulu.');db.ageReferenceDate='';try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){return alert('Pengaturan tidak dapat disimpan di browser.');}clearTimeout(cloudSaveTimer);if(cloudReady)await saveCloud();if($('ageReferenceDateInput'))$('ageReferenceDateInput').value='';updateAgeReferenceDateInfo();render();renderStudents();renderAdminStudentActions();renderRecap('TK');renderRecap('SD');alert('Pengaturan dikembalikan. Umur siswa sekarang dihitung berdasarkan tanggal hari ini.')}
 render();updateSchoolYearBadge();showPage('dashboard');loadCloudDatabase();
 </script><div id="yearEditorModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:10010;align-items:center;justify-content:center;padding:16px">
   <div class="panel" style="width:min(440px,100%);background:#fff;padding:22px;border-radius:16px;box-shadow:0 12px 40px #0003">
