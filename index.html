@@ -2255,50 +2255,39 @@ async function saveCloud(){
   cloudSaveRunning=true;
   setCloudStatus('Menyimpan data ke Backendless...',true);
   try{
-    const serialized=JSON.stringify(db);
-    const chars=Array.from(serialized);
-    const parts=[];
-    for(let i=0;i<chars.length;i+=BACKENDLESS_CHUNK_SIZE){
-      parts.push(chars.slice(i,i+BACKENDLESS_CHUNK_SIZE).join(''));
-    }
+    const serialized=JSON.stringify(db), chars=Array.from(serialized), parts=[];
+    for(let i=0;i<chars.length;i+=BACKENDLESS_CHUNK_SIZE)parts.push(chars.slice(i,i+BACKENDLESS_CHUNK_SIZE).join(''));
     if(!parts.length)parts.push('{}');
 
-    // Data dipecah menjadi beberapa baris agar setiap nilai kolom payload
-    // selalu jauh di bawah batas Backendless 21.000 karakter.
+    // Setiap snapshot memakai ID generasi baru. Semua bagian dibuat sebagai
+    // rekaman baru agar pembaca tidak mencampur potongan dari penyimpanan berbeda.
+    const generationId=BACKENDLESS_BATCH_ID+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    const savedIds=[];
     for(let index=0;index<parts.length;index++){
-      const chunkPayload=`${BACKENDLESS_CHUNK_PREFIX}|${BACKENDLESS_BATCH_ID}|${index}|${parts.length}|${parts[index]}`;
-      let objectId=backendlessChunkIds[index]||null;
-      if(index===0&&!objectId&&backendlessObjectId)objectId=backendlessObjectId;
-      const url=objectId?`${BACKENDLESS_BASE}/${encodeURIComponent(objectId)}`:BACKENDLESS_BASE;
-      const response=await fetch(url,{
-        method:objectId?'PUT':'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({payload:chunkPayload})
-      });
+      const payload=`${BACKENDLESS_CHUNK_PREFIX}|${generationId}|${index}|${parts.length}|${parts[index]}`;
+      const response=await fetch(BACKENDLESS_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({payload})});
       const result=await response.json().catch(()=>null);
       if(!response.ok)throw new Error(result?.message||result?.code||`HTTP ${response.status}`);
-      const savedId=result?.objectId||objectId;
-      if(savedId)backendlessChunkIds[index]=savedId;
-      if(index===0&&savedId)backendlessObjectId=savedId;
+      if(!result?.objectId)throw new Error('Backendless tidak mengembalikan objectId untuk bagian '+(index+1)+'.');
+      savedIds[index]=result.objectId;
     }
-
+    // Perbarui referensi lokal hanya setelah seluruh bagian berhasil tersimpan.
+    backendlessChunkIds=savedIds;
+    backendlessObjectId=savedIds[0]||null;
     db.lastSync=new Date().toISOString();
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){}
     setCloudStatus('Tersimpan online di Backendless',true);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Data tersimpan online di Backendless. Penyimpanan otomatis menggunakan beberapa bagian agar kapasitas data lebih besar.';
+    if(notice)notice.textContent='Data tersimpan online. Seluruh '+parts.length+' bagian snapshot terbaru berhasil dibuat.';
   }catch(e){
     console.error('Backendless save error:',e);
     setCloudStatus('Gagal menyimpan ke Backendless',false);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Penyimpanan online gagal. Data lokal di perangkat ini tetap dipertahankan. Detail: '+e.message;
+    if(notice)notice.textContent='Penyimpanan online gagal. Data lokal tetap dipertahankan. Detail: '+e.message;
     alert('Gagal menyimpan data ke Backendless. Data lokal tetap tersimpan. Detail: '+e.message);
   }finally{
     cloudSaveRunning=false;
-    if(cloudSaveAgain){
-      cloudSaveAgain=false;
-      setTimeout(()=>saveCloud(),250);
-    }
+    if(cloudSaveAgain){cloudSaveAgain=false;setTimeout(()=>saveCloud(),250);}
   }
 }
 async function fetchAllBackendlessRecords(){
@@ -2328,47 +2317,50 @@ async function loadCloudDatabase(){
   const localExists=!!localStorage.getItem(STORAGE_KEY);
   try{
     const result=await fetchAllBackendlessRecords();
-
     let remoteData=null;
-    backendlessChunkIds=[];
-    backendlessObjectId=null;
+    backendlessChunkIds=[];backendlessObjectId=null;
 
     if(Array.isArray(result)&&result.length){
-      const chunks=result.map(parseChunkRecord).filter(x=>x&&x.batchId===BACKENDLESS_BATCH_ID);
+      const chunks=result.map(parseChunkRecord).filter(x=>x&&(x.batchId===BACKENDLESS_BATCH_ID||x.batchId.startsWith(BACKENDLESS_BATCH_ID+'_')));
       if(chunks.length){
-        const first=chunks.find(x=>x.index===0);
-        if(!first)throw new Error('Bagian pertama database SPMB tidak ditemukan di Backendless. Data lokal tidak akan dikirim untuk mencegah data server tertimpa.');
-        const count=first.count;
-        const byIndex=new Map(chunks.filter(x=>x.count===count).map(x=>[x.index,x]));
-        const missing=Array.from({length:count},(_,i)=>i).filter(i=>!byIndex.has(i));
-        if(missing.length){
-          throw new Error('Data SPMB di Backendless belum terbaca lengkap. Bagian yang belum ditemukan: '+missing.join(', ')+'. Data tidak diubah agar aman.');
+        // Pisahkan rekaman menurut ID generasi agar chunk dari beberapa save tidak tercampur.
+        const groups=new Map();
+        chunks.forEach(x=>{if(!groups.has(x.batchId))groups.set(x.batchId,[]);groups.get(x.batchId).push(x);});
+        const complete=[];
+        for(const [batchId,group] of groups){
+          const counts=[...new Set(group.map(x=>x.count))];
+          if(counts.length!==1)continue;
+          const count=counts[0], byIndex=new Map();
+          group.forEach(x=>{
+            const old=byIndex.get(x.index);
+            if(!old||(new Date(x.created||0).getTime()>=new Date(old.created||0).getTime()))byIndex.set(x.index,x);
+          });
+          if(!Number.isInteger(count)||count<1||count>10000)continue;
+          if(Array.from({length:count},(_,i)=>i).every(i=>byIndex.has(i))){
+            const newest=Math.max(...Array.from(byIndex.values()).map(x=>new Date(x.created||0).getTime()||0));
+            complete.push({batchId,count,byIndex,newest});
+          }
         }
-        const joined=Array.from({length:count},(_,i)=>byIndex.get(i).data).join('');
+        if(!complete.length)throw new Error('Rekaman ditemukan, tetapi tidak ada satu snapshot yang memiliki seluruh bagian. Data tidak diubah agar aman.');
+        complete.sort((a,b)=>b.newest-a.newest);
+        const chosen=complete[0];
+        const joined=Array.from({length:chosen.count},(_,i)=>chosen.byIndex.get(i).data).join('');
         remoteData=JSON.parse(joined);
-        for(let i=0;i<count;i++)backendlessChunkIds[i]=byIndex.get(i).objectId;
+        for(let i=0;i<chosen.count;i++)backendlessChunkIds[i]=chosen.byIndex.get(i).objectId;
         backendlessObjectId=backendlessChunkIds[0]||null;
       }else{
-        // Kompatibel dengan format lama: satu baris payload JSON.
-        const legacy=result.find(record=>record&&record.payload!==undefined);
-        if(legacy){
-          remoteData=decodeCloudRecordPayload(legacy.payload);
-          backendlessObjectId=legacy.objectId||null;
-          if(backendlessObjectId)backendlessChunkIds[0]=backendlessObjectId;
-        }
+        const legacy=result.find(x=>x&&x.payload!==undefined);
+        if(legacy){remoteData=decodeCloudRecordPayload(legacy.payload);backendlessObjectId=legacy.objectId||null;if(backendlessObjectId)backendlessChunkIds[0]=backendlessObjectId;}
       }
     }
 
     if(remoteData&&typeof remoteData==='object'){
       db=localExists?mergeLocalAndRemote(localSnapshot,remoteData):normalizeSchoolData(Object.assign(structuredClone(DEFAULT_DB),remoteData));
     }else{
-      // Hanya izinkan kondisi benar-benar belum ada baris cloud. Jika server
-      // memiliki baris tetapi formatnya tidak dikenali, hentikan sinkronisasi.
-      if(result.length)throw new Error('Data ditemukan di Backendless tetapi formatnya tidak dikenali. Data lokal tidak dikirim agar data server tetap aman.');
-      if(!localExists)throw new Error('Tabel SPMBData tidak mengembalikan satu pun data. Periksa apakah data berada di aplikasi Backendless dan tabel yang benar, serta izin RETRIEVE untuk NotAuthenticatedUser.');
+      if(result.length)throw new Error('Data ditemukan di Backendless tetapi formatnya tidak dikenali. Data lokal tidak dikirim.');
+      if(!localExists)throw new Error('Tabel SPMBData tidak mengembalikan data. Periksa izin RETRIEVE untuk NotAuthenticatedUser.');
       db=localSnapshot;
     }
-
     db.students=Array.isArray(db.students)?db.students:[];
     db.fees=Array.isArray(db.fees)?db.fees:[];
     db.payments=Array.isArray(db.payments)?db.payments:[];
@@ -2378,20 +2370,20 @@ async function loadCloudDatabase(){
     db.sectionPasswords=Object.assign({interview:'123456',registration:'654321'},db.sectionPasswords||{});
     localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
 
-    cloudReady=true;
-    cloudLoading=false;
+    cloudReady=true;cloudLoading=false;
     render();updateSchoolYearBadge();showPage('dashboard');
     if(typeof applyDashboardBannerFromDB==='function')applyDashboardBannerFromDB();
     setCloudStatus('Terhubung — Backendless',true);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Terhubung ke Backendless. '+db.students.length+' data siswa berhasil dimuat pada perangkat ini. Seluruh bagian database telah diperiksa.';
-    // Sinkronkan hasil gabungan dan migrasikan rekaman lama ke format beberapa bagian.
+    if(notice)notice.textContent='Terhubung ke Backendless. '+db.students.length+' data siswa berhasil dimuat dari snapshot lengkap.';
     await saveCloud();
   }catch(e){
     cloudLoading=false;cloudReady=false;
     console.error('Backendless load error:',e);
     setCloudStatus('Gagal terhubung ke Backendless',false);
-    alert('Belum berhasil terhubung ke database Backendless. Pastikan izin RETRIEVE, CREATE, dan UPDATE untuk NotAuthenticatedUser pada tabel SPMBData sudah aktif. Detail: '+e.message);
+    const notice=document.getElementById('syncNotice');
+    if(notice)notice.textContent='Gagal membaca database online. Data lokal tidak diubah. Detail: '+e.message;
+    alert('Belum berhasil membaca database Backendless. Data tidak diubah agar aman. Detail: '+e.message);
     render();showPage('dashboard');
   }
 }
