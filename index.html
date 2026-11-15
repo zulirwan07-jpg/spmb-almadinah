@@ -2836,4 +2836,107 @@ document.addEventListener('click',function(event){
 
 
 
+
+<style id="dashboard-sd-layout-repair">
+/* Menjaga desain dashboard versi terbaru dan merapikan teks kartu SD */
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;
+  align-items:stretch!important;
+}
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card{
+  grid-column:span 1!important;
+  width:100%!important;
+  min-width:0!important;
+  height:96px!important;
+  min-height:96px!important;
+  max-height:96px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:7px 6px!important;
+  overflow:hidden!important;
+  border-radius:15px!important;
+}
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.student-avatar,
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.origin-school-icon{
+  display:block!important;
+  flex:0 0 48px!important;
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  height:58px!important;
+  max-height:58px!important;
+  object-fit:contain!important;
+}
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > div{
+  flex:1 1 0!important;
+  width:0!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  overflow:hidden!important;
+  text-align:center!important;
+}
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card small{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-overflow:clip!important;
+  overflow:hidden!important;
+  font-size:clamp(8px,.72vw,11px)!important;
+  line-height:1.1!important;
+  letter-spacing:-.25px!important;
+  font-weight:800!important;
+}
+body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card strong{
+  display:block!important;
+  font-size:clamp(19px,1.55vw,25px)!important;
+  line-height:1!important;
+  margin:3px 0 0!important;
+}
+@media(max-width:700px){
+  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card{
+    height:76px!important;
+    min-height:76px!important;
+    max-height:76px!important;
+    gap:3px!important;
+    padding:5px 3px!important;
+  }
+  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.student-avatar,
+  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.origin-school-icon{
+    flex-basis:32px!important;
+    width:32px!important;
+    min-width:32px!important;
+    max-width:32px!important;
+    height:42px!important;
+  }
+  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card small{
+    font-size:clamp(6.5px,1.7vw,9px)!important;
+    letter-spacing:-.35px!important;
+  }
+  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card strong{
+    font-size:clamp(16px,3.5vw,21px)!important;
+  }
+}
+</style>
+
 </body></html>
