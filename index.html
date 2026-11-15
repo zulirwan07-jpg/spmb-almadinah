@@ -2301,14 +2301,33 @@ async function saveCloud(){
     }
   }
 }
+async function fetchAllBackendlessRecords(){
+  // Backendless membatasi jumlah baris per permintaan. Ambil seluruh halaman
+  // agar semua bagian (chunk) database SPMB terkumpul pada setiap perangkat.
+  const pageSize=100;
+  const all=[];
+  let offset=0;
+  while(true){
+    const separator=BACKENDLESS_BASE.includes('?')?'&':'?';
+    const url=BACKENDLESS_BASE+separator+'pageSize='+pageSize+'&offset='+offset;
+    const response=await fetch(url,{method:'GET',headers:{'Accept':'application/json'}});
+    const page=await response.json().catch(()=>null);
+    if(!response.ok)throw new Error(page?.message||page?.code||`HTTP ${response.status}`);
+    if(!Array.isArray(page))throw new Error('Respons daftar data Backendless bukan berupa daftar. Periksa izin RETRIEVE tabel SPMBData.');
+    all.push(...page);
+    if(page.length<pageSize)break;
+    offset+=page.length;
+    if(offset>100000)throw new Error('Pengambilan data melebihi batas pengaman. Hubungi administrator.');
+  }
+  return all;
+}
+
 async function loadCloudDatabase(){
-  setCloudStatus('Mengambil data dari Backendless...',true);
+  setCloudStatus('Mengambil seluruh data dari Backendless...',true);
   const localSnapshot=structuredClone(db);
   const localExists=!!localStorage.getItem(STORAGE_KEY);
   try{
-    const response=await fetch(BACKENDLESS_BASE,{method:'GET',headers:{'Accept':'application/json'}});
-    const result=await response.json().catch(()=>null);
-    if(!response.ok)throw new Error(result?.message||result?.code||`HTTP ${response.status}`);
+    const result=await fetchAllBackendlessRecords();
 
     let remoteData=null;
     backendlessChunkIds=[];
@@ -2318,17 +2337,17 @@ async function loadCloudDatabase(){
       const chunks=result.map(parseChunkRecord).filter(x=>x&&x.batchId===BACKENDLESS_BATCH_ID);
       if(chunks.length){
         const first=chunks.find(x=>x.index===0);
-        if(first){
-          const count=first.count;
-          const byIndex=new Map(chunks.filter(x=>x.count===count).map(x=>[x.index,x]));
-          const complete=Array.from({length:count},(_,i)=>byIndex.has(i)).every(Boolean);
-          if(complete){
-            const joined=Array.from({length:count},(_,i)=>byIndex.get(i).data).join('');
-            remoteData=JSON.parse(joined);
-            for(let i=0;i<count;i++)backendlessChunkIds[i]=byIndex.get(i).objectId;
-            backendlessObjectId=backendlessChunkIds[0]||null;
-          }
+        if(!first)throw new Error('Bagian pertama database SPMB tidak ditemukan di Backendless. Data lokal tidak akan dikirim untuk mencegah data server tertimpa.');
+        const count=first.count;
+        const byIndex=new Map(chunks.filter(x=>x.count===count).map(x=>[x.index,x]));
+        const missing=Array.from({length:count},(_,i)=>i).filter(i=>!byIndex.has(i));
+        if(missing.length){
+          throw new Error('Data SPMB di Backendless belum terbaca lengkap. Bagian yang belum ditemukan: '+missing.join(', ')+'. Data tidak diubah agar aman.');
         }
+        const joined=Array.from({length:count},(_,i)=>byIndex.get(i).data).join('');
+        remoteData=JSON.parse(joined);
+        for(let i=0;i<count;i++)backendlessChunkIds[i]=byIndex.get(i).objectId;
+        backendlessObjectId=backendlessChunkIds[0]||null;
       }else{
         // Kompatibel dengan format lama: satu baris payload JSON.
         const legacy=result.find(record=>record&&record.payload!==undefined);
@@ -2343,8 +2362,9 @@ async function loadCloudDatabase(){
     if(remoteData&&typeof remoteData==='object'){
       db=localExists?mergeLocalAndRemote(localSnapshot,remoteData):normalizeSchoolData(Object.assign(structuredClone(DEFAULT_DB),remoteData));
     }else{
-      // Jika belum ada rekaman cloud atau rekaman bagian belum lengkap,
-      // jangan menimpa data lokal yang mungkin berisi perubahan terbaru.
+      // Hanya izinkan kondisi benar-benar belum ada baris cloud. Jika server
+      // memiliki baris tetapi formatnya tidak dikenali, hentikan sinkronisasi.
+      if(result.length)throw new Error('Data ditemukan di Backendless tetapi formatnya tidak dikenali. Data lokal tidak dikirim agar data server tetap aman.');
       db=localSnapshot;
     }
 
@@ -2360,7 +2380,7 @@ async function loadCloudDatabase(){
     if(typeof applyDashboardBannerFromDB==='function')applyDashboardBannerFromDB();
     setCloudStatus('Terhubung — Backendless',true);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Terhubung ke Backendless. Data disimpan dalam beberapa bagian agar tidak terkena batas ukuran payload.';
+    if(notice)notice.textContent='Terhubung ke Backendless. Seluruh bagian data telah diambil dan disinkronkan untuk perangkat ini.';
     // Sinkronkan hasil gabungan dan migrasikan rekaman lama ke format beberapa bagian.
     await saveCloud();
   }catch(e){
@@ -2835,108 +2855,5 @@ document.addEventListener('click',function(event){
 
 
 
-
-
-<style id="dashboard-sd-layout-repair">
-/* Menjaga desain dashboard versi terbaru dan merapikan teks kartu SD */
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:9px!important;
-  align-items:stretch!important;
-}
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card{
-  grid-column:span 1!important;
-  width:100%!important;
-  min-width:0!important;
-  height:96px!important;
-  min-height:96px!important;
-  max-height:96px!important;
-  box-sizing:border-box!important;
-  display:flex!important;
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:6px!important;
-  padding:7px 6px!important;
-  overflow:hidden!important;
-  border-radius:15px!important;
-}
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.student-avatar,
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.origin-school-icon{
-  display:block!important;
-  flex:0 0 48px!important;
-  width:48px!important;
-  min-width:48px!important;
-  max-width:48px!important;
-  height:58px!important;
-  max-height:58px!important;
-  object-fit:contain!important;
-}
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > div{
-  flex:1 1 0!important;
-  width:0!important;
-  min-width:0!important;
-  max-width:100%!important;
-  height:auto!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  padding:0!important;
-  margin:0!important;
-  border:0!important;
-  overflow:hidden!important;
-  text-align:center!important;
-}
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card small{
-  display:block!important;
-  width:100%!important;
-  max-width:100%!important;
-  white-space:nowrap!important;
-  word-break:normal!important;
-  overflow-wrap:normal!important;
-  text-overflow:clip!important;
-  overflow:hidden!important;
-  font-size:clamp(8px,.72vw,11px)!important;
-  line-height:1.1!important;
-  letter-spacing:-.25px!important;
-  font-weight:800!important;
-}
-body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card strong{
-  display:block!important;
-  font-size:clamp(19px,1.55vw,25px)!important;
-  line-height:1!important;
-  margin:3px 0 0!important;
-}
-@media(max-width:700px){
-  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    gap:5px!important;
-  }
-  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card{
-    height:76px!important;
-    min-height:76px!important;
-    max-height:76px!important;
-    gap:3px!important;
-    padding:5px 3px!important;
-  }
-  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.student-avatar,
-  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card > svg.origin-school-icon{
-    flex-basis:32px!important;
-    width:32px!important;
-    min-width:32px!important;
-    max-width:32px!important;
-    height:42px!important;
-  }
-  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card small{
-    font-size:clamp(6.5px,1.7vw,9px)!important;
-    letter-spacing:-.35px!important;
-  }
-  body.dashboard-mode .dashboard-box:has(.sd-origin-grid) .sd-origin-grid > .metric-card strong{
-    font-size:clamp(16px,3.5vw,21px)!important;
-  }
-}
-</style>
 
 </body></html>
