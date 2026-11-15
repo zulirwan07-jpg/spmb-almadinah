@@ -2178,7 +2178,7 @@ let backendlessObjectId=null;
 let backendlessChunkIds=[];
 const BACKENDLESS_CHUNK_PREFIX='SPMBCHUNK2';
 const BACKENDLESS_BATCH_ID='SPMB_MAIN_V2';
-const BACKENDLESS_CHUNK_SIZE=15000;
+const BACKENDLESS_CHUNK_SIZE=7000;
 
 function load(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');return saved&&typeof saved==='object'?Object.assign(structuredClone(DEFAULT_DB),saved):structuredClone(DEFAULT_DB)}catch(e){return structuredClone(DEFAULT_DB)}}
 let db=load();
@@ -2365,9 +2365,13 @@ async function loadCloudDatabase(){
       // Hanya izinkan kondisi benar-benar belum ada baris cloud. Jika server
       // memiliki baris tetapi formatnya tidak dikenali, hentikan sinkronisasi.
       if(result.length)throw new Error('Data ditemukan di Backendless tetapi formatnya tidak dikenali. Data lokal tidak dikirim agar data server tetap aman.');
+      if(!localExists)throw new Error('Tabel SPMBData tidak mengembalikan satu pun data. Periksa apakah data berada di aplikasi Backendless dan tabel yang benar, serta izin RETRIEVE untuk NotAuthenticatedUser.');
       db=localSnapshot;
     }
 
+    db.students=Array.isArray(db.students)?db.students:[];
+    db.fees=Array.isArray(db.fees)?db.fees:[];
+    db.payments=Array.isArray(db.payments)?db.payments:[];
     db.teachers=Array.isArray(db.teachers)?db.teachers:[];
     db.petugas=Array.isArray(db.petugas)?db.petugas:[];
     db.admin=Object.assign({password:'123456',menuAccess:{}},db.admin||{});
@@ -2380,7 +2384,7 @@ async function loadCloudDatabase(){
     if(typeof applyDashboardBannerFromDB==='function')applyDashboardBannerFromDB();
     setCloudStatus('Terhubung — Backendless',true);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Terhubung ke Backendless. Seluruh bagian data telah diambil dan disinkronkan untuk perangkat ini.';
+    if(notice)notice.textContent='Terhubung ke Backendless. '+db.students.length+' data siswa berhasil dimuat pada perangkat ini. Seluruh bagian database telah diperiksa.';
     // Sinkronkan hasil gabungan dan migrasikan rekaman lama ke format beberapa bagian.
     await saveCloud();
   }catch(e){
