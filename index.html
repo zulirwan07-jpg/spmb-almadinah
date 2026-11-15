@@ -2246,7 +2246,9 @@ function parseChunkRecord(record){
     index:Number(match[2]),
     count:Number(match[3]),
     data:raw.slice(match[0].length),
-    objectId:record.objectId||null
+    objectId:record.objectId||null,
+    created:record.created||null,
+    updated:record.updated||null
   };
 }
 async function saveCloud(){
@@ -2323,29 +2325,62 @@ async function loadCloudDatabase(){
     if(Array.isArray(result)&&result.length){
       const chunks=result.map(parseChunkRecord).filter(x=>x&&(x.batchId===BACKENDLESS_BATCH_ID||x.batchId.startsWith(BACKENDLESS_BATCH_ID+'_')));
       if(chunks.length){
-        // Pisahkan rekaman menurut ID generasi agar chunk dari beberapa save tidak tercampur.
+        // Snapshot baru memakai ID generasi unik, sehingga setiap generasi
+        // dapat disusun tanpa mencampur bagian dari waktu penyimpanan berbeda.
         const groups=new Map();
-        chunks.forEach(x=>{if(!groups.has(x.batchId))groups.set(x.batchId,[]);groups.get(x.batchId).push(x);});
+        chunks.filter(x=>x.batchId!==BACKENDLESS_BATCH_ID).forEach(x=>{
+          if(!groups.has(x.batchId))groups.set(x.batchId,[]);
+          groups.get(x.batchId).push(x);
+        });
         const complete=[];
+        const stamp=x=>new Date(x.updated||x.created||0).getTime()||0;
         for(const [batchId,group] of groups){
           const counts=[...new Set(group.map(x=>x.count))];
           if(counts.length!==1)continue;
           const count=counts[0], byIndex=new Map();
           group.forEach(x=>{
             const old=byIndex.get(x.index);
-            if(!old||(new Date(x.created||0).getTime()>=new Date(old.created||0).getTime()))byIndex.set(x.index,x);
+            if(!old||stamp(x)>=stamp(old))byIndex.set(x.index,x);
           });
           if(!Number.isInteger(count)||count<1||count>10000)continue;
           if(Array.from({length:count},(_,i)=>i).every(i=>byIndex.has(i))){
-            const newest=Math.max(...Array.from(byIndex.values()).map(x=>new Date(x.created||0).getTime()||0));
+            const newest=Math.max(...Array.from(byIndex.values()).map(stamp));
             complete.push({batchId,count,byIndex,newest});
           }
         }
-        if(!complete.length)throw new Error('Rekaman ditemukan, tetapi tidak ada satu snapshot yang memiliki seluruh bagian. Data tidak diubah agar aman.');
+
+        // Pemulihan khusus format lama: semua bagian memakai batch ID tetap,
+        // dan Backendless memperbarui timestamp setiap kali baris diubah.
+        const legacy=chunks.filter(x=>x.batchId===BACKENDLESS_BATCH_ID);
+        if(legacy.length){
+          const first=legacy.filter(x=>x.index===0).sort((a,b)=>stamp(b)-stamp(a))[0];
+          if(first&&Number.isInteger(first.count)&&first.count>0&&first.count<=10000){
+            const count=first.count, anchor=stamp(first);
+            const byIndex=new Map();
+            for(let index=0;index<count;index++){
+              const candidates=legacy.filter(x=>x.index===index&&x.count===count)
+                .sort((a,b)=>Math.abs(stamp(a)-anchor)-Math.abs(stamp(b)-anchor));
+              if(candidates.length&&(!anchor||!stamp(candidates[0])||Math.abs(stamp(candidates[0])-anchor)<=15*60*1000)){
+                byIndex.set(index,candidates[0]);
+              }
+            }
+            if(Array.from({length:count},(_,i)=>i).every(i=>byIndex.has(i))){
+              complete.push({batchId:BACKENDLESS_BATCH_ID,count,byIndex,newest:anchor});
+            }
+          }
+        }
+
+        if(!complete.length)throw new Error('Data lama ditemukan, tetapi bagian-bagiannya belum dapat disusun dengan aman. Data Backendless tidak dihapus atau ditimpa. Mohon kirimkan ekspor/daftar rekaman tabel SPMBData agar dapat dipulihkan.');
         complete.sort((a,b)=>b.newest-a.newest);
-        const chosen=complete[0];
-        const joined=Array.from({length:chosen.count},(_,i)=>chosen.byIndex.get(i).data).join('');
-        remoteData=JSON.parse(joined);
+        let chosen=null, parsed=null, parseError=null;
+        for(const candidate of complete){
+          try{
+            const joined=Array.from({length:candidate.count},(_,i)=>candidate.byIndex.get(i).data).join('');
+            parsed=JSON.parse(joined);chosen=candidate;break;
+          }catch(err){parseError=err;}
+        }
+        if(!chosen)throw new Error('Bagian data ditemukan tetapi hasil gabungannya belum menjadi JSON utuh. Data tidak diubah. Detail: '+(parseError?.message||'format JSON tidak valid'));
+        remoteData=parsed;
         for(let i=0;i<chosen.count;i++)backendlessChunkIds[i]=chosen.byIndex.get(i).objectId;
         backendlessObjectId=backendlessChunkIds[0]||null;
       }else{
