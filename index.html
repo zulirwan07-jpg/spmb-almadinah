@@ -1298,6 +1298,32 @@ header{flex-wrap:wrap!important}
 #page-students .tablewrap th:nth-child(8),#page-students .tablewrap td:nth-child(8){width:135px}
 @media(max-width:700px){#page-students .tablewrap th,#page-students .tablewrap td{font-size:10px;padding:7px 5px}}
 </style>
+
+<style>
+/* Label kartu perempuan tetap satu baris dan sedikit digeser ke kiri */
+body.dashboard-mode .dashboard-metric-grid.three .metric-card.metric-pink small{
+  white-space:nowrap!important;
+  overflow:visible!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+  font-size:clamp(9px,.72vw,12px)!important;
+  transform:translateX(-3px);
+}
+@media(max-width:700px){
+  body.dashboard-mode .dashboard-metric-grid.three .metric-card.metric-pink small{
+    font-size:8px!important;
+    transform:translateX(-2px);
+  }
+}
+/* Jika kartu kategori sekolah tersedia pada versi dashboard, jaga nama tetap utuh */
+body.dashboard-mode .dashboard-metric-grid .metric-card .school-category-label{
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  font-size:clamp(9px,.72vw,12px)!important;
+}
+</style>
+
 </head><body>
 <div class="app"><aside class="sidebar">
   <div class="brand">
@@ -1484,7 +1510,8 @@ let backendlessObjectId=null;
 let backendlessChunkIds=[];
 const BACKENDLESS_CHUNK_PREFIX='SPMBCHUNK2';
 const BACKENDLESS_BATCH_ID='SPMB_MAIN_V2';
-const BACKENDLESS_CHUNK_SIZE=15000;
+// Ukuran kecil agar payload JSON tetap aman setelah karakter khusus di-escape.
+const BACKENDLESS_CHUNK_SIZE=7000;
 
 function load(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');return saved&&typeof saved==='object'?Object.assign(structuredClone(DEFAULT_DB),saved):structuredClone(DEFAULT_DB)}catch(e){return structuredClone(DEFAULT_DB)}}
 let db=load();
@@ -1629,10 +1656,18 @@ async function loadCloudDatabase(){
           const byIndex=new Map(chunks.filter(x=>x.count===count).map(x=>[x.index,x]));
           const complete=Array.from({length:count},(_,i)=>byIndex.has(i)).every(Boolean);
           if(complete){
-            const joined=Array.from({length:count},(_,i)=>byIndex.get(i).data).join('');
-            remoteData=JSON.parse(joined);
+            // Simpan objectId sebelum parsing. Jika data lama terpotong,
+            // bagian yang rusak masih dapat diperbarui dari salinan lokal.
             for(let i=0;i<count;i++)backendlessChunkIds[i]=byIndex.get(i).objectId;
             backendlessObjectId=backendlessChunkIds[0]||null;
+            const joined=Array.from({length:count},(_,i)=>byIndex.get(i).data).join('');
+            try{
+              remoteData=JSON.parse(joined);
+            }catch(parseError){
+              console.error('Payload Backendless tidak utuh/JSON rusak:',parseError);
+              remoteData=null;
+              window.__spmbCloudPayloadWarning='Data online lama tidak terbaca utuh. Salinan lokal dipertahankan dan akan digunakan untuk memperbaiki penyimpanan online.';
+            }
           }
         }
       }else{
@@ -1649,8 +1684,7 @@ async function loadCloudDatabase(){
     if(remoteData&&typeof remoteData==='object'){
       db=localExists?mergeLocalAndRemote(localSnapshot,remoteData):normalizeSchoolData(Object.assign(structuredClone(DEFAULT_DB),remoteData));
     }else{
-      // Jika belum ada rekaman cloud atau rekaman bagian belum lengkap,
-      // jangan menimpa data lokal yang mungkin berisi perubahan terbaru.
+      // Jangan pernah mengganti data lokal dengan data online yang tidak lengkap/rusak.
       db=localSnapshot;
     }
 
@@ -1660,15 +1694,31 @@ async function loadCloudDatabase(){
     db.sectionPasswords=Object.assign({interview:'123456',registration:'654321'},db.sectionPasswords||{});
     localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
 
+    // Bila cloud rusak dan belum ada salinan lokal, hentikan proses tulis
+    // agar data default tidak menimpa data siswa yang mungkin masih bisa dipulihkan.
+    if(window.__spmbCloudPayloadWarning&&!localExists){
+      cloudReady=false;
+      cloudLoading=false;
+      render();updateSchoolYearBadge();showPage('dashboard');
+      setCloudStatus('Data online perlu pemulihan',false);
+      const warningNotice=document.getElementById('syncNotice');
+      if(warningNotice)warningNotice.textContent='Data Backendless tidak terbaca utuh. Tidak ada data yang ditimpa. Pulihkan dari backup atau periksa data tabel terlebih dahulu.';
+      alert('Data Backendless tidak terbaca utuh. Aplikasi tidak menimpa database. Jika ada backup, mohon pulihkan terlebih dahulu.');
+      return;
+    }
+
     cloudReady=true;
     cloudLoading=false;
     render();updateSchoolYearBadge();showPage('dashboard');
     if(typeof applyDashboardBannerFromDB==='function')applyDashboardBannerFromDB();
     setCloudStatus('Terhubung — Backendless',true);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Terhubung ke Backendless. Data disimpan dalam beberapa bagian agar tidak terkena batas ukuran payload.';
-    // Sinkronkan hasil gabungan dan migrasikan rekaman lama ke format beberapa bagian.
+    if(notice)notice.textContent=window.__spmbCloudPayloadWarning
+      ? 'Data lokal tetap dipertahankan. Sistem sedang memperbaiki bagian penyimpanan Backendless yang sebelumnya terpotong.'
+      : 'Terhubung ke Backendless. Data disimpan dalam beberapa bagian berukuran aman.';
+    // Simpan ulang hanya jika data online valid atau tersedia salinan lokal yang aman.
     await saveCloud();
+    window.__spmbCloudPayloadWarning='';
   }catch(e){
     cloudLoading=false;cloudReady=false;
     console.error('Backendless load error:',e);
