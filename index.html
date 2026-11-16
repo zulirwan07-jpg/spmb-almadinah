@@ -2281,12 +2281,14 @@ async function saveCloud(){
     setCloudStatus('Tersimpan online di Backendless',true);
     const notice=document.getElementById('syncNotice');
     if(notice)notice.textContent='Data tersimpan online. Seluruh '+parts.length+' bagian snapshot terbaru berhasil dibuat.';
+    return true;
   }catch(e){
     console.error('Backendless save error:',e);
     setCloudStatus('Gagal menyimpan ke Backendless',false);
     const notice=document.getElementById('syncNotice');
     if(notice)notice.textContent='Penyimpanan online gagal. Data lokal tetap dipertahankan. Detail: '+e.message;
     alert('Gagal menyimpan data ke Backendless. Data lokal tetap tersimpan. Detail: '+e.message);
+    return false;
   }finally{
     cloudSaveRunning=false;
     if(cloudSaveAgain){cloudSaveAgain=false;setTimeout(()=>saveCloud(),250);}
@@ -2390,7 +2392,11 @@ async function loadCloudDatabase(){
     }
 
     if(remoteData&&typeof remoteData==='object'){
-      db=localExists?mergeLocalAndRemote(localSnapshot,remoteData):normalizeSchoolData(Object.assign(structuredClone(DEFAULT_DB),remoteData));
+      // Backendless menjadi sumber data utama untuk semua perangkat.
+      // Jangan menggabungkan daftar siswa lokal perangkat ini ke cloud karena
+      // cache lama dapat menambah/menggandakan jumlah siswa atau menghidupkan
+      // kembali data yang sudah dihapus di perangkat lain.
+      db=normalizeSchoolData(Object.assign(structuredClone(DEFAULT_DB),remoteData));
     }else{
       if(result.length)throw new Error('Data ditemukan di Backendless tetapi formatnya tidak dikenali. Data lokal tidak dikirim.');
       if(!localExists)throw new Error('Tabel SPMBData tidak mengembalikan data. Periksa izin RETRIEVE untuk NotAuthenticatedUser.');
@@ -2410,8 +2416,9 @@ async function loadCloudDatabase(){
     if(typeof applyDashboardBannerFromDB==='function')applyDashboardBannerFromDB();
     setCloudStatus('Terhubung — Backendless',true);
     const notice=document.getElementById('syncNotice');
-    if(notice)notice.textContent='Terhubung ke Backendless. '+db.students.length+' data siswa berhasil dimuat dari snapshot lengkap.';
-    await saveCloud();
+    if(notice)notice.textContent='Terhubung ke Backendless. '+db.students.length+' data siswa berhasil dimuat dari database online.';
+    // Tidak melakukan save otomatis saat aplikasi baru dibuka. Ini mencegah
+    // perangkat dengan cache lama menimpa database online yang lebih baru.
   }catch(e){
     cloudLoading=false;cloudReady=false;
     console.error('Backendless load error:',e);
@@ -2714,8 +2721,23 @@ function showAllMenus(){
   document.querySelectorAll('.nav button[data-page]').forEach(b=>{if(b.dataset.page!=='admin')b.style.display='';});
   alert('Berhasil! Semua menu telah ditampilkan kembali. Klik Simpan Pengaturan Menu untuk menyimpan pengaturan.');
 }
-function changeSectionPassword(section){if(!systemSettingsUnlocked){alert('Silakan buka Pengaturan Sistem terlebih dahulu.');return;}const isInterview=section==='interview';const newId=isInterview?'newInterviewPassword':'newRegistrationPassword';const confirmId=isInterview?'confirmInterviewPassword':'confirmRegistrationPassword';const label=isInterview?'Penguji / Interview':'Petugas Pendaftaran';const n=$(newId).value.trim(),c=$(confirmId).value.trim();if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password tidak sama.');db.sectionPasswords[section]=n;save();$(newId).value='';$(confirmId).value='';alert('Password menu '+label+' berhasil diubah.');}
-function changeAdminPassword(){const old=$('adminOldPassword').value,n=$('adminNewPassword').value,c=$('adminConfirmPassword').value;if(old!==(db.admin.password||'123456'))return alert('Password lama tidak sesuai.');if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password baru tidak sama.');db.admin.password=n;save();$('adminOldPassword').value=$('adminNewPassword').value=$('adminConfirmPassword').value='';alert('Password admin berhasil diubah dan disimpan pada browser ini.');}
+async function persistSharedSettings(label){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}
+  catch(e){alert('Pengaturan tidak dapat disimpan di browser ini: '+e.message);return false;}
+  clearTimeout(cloudSaveTimer);
+  if(!cloudReady){
+    alert(label+' hanya tersimpan di browser ini karena koneksi Backendless belum siap. Muat ulang setelah koneksi pulih, lalu simpan kembali.');
+    return false;
+  }
+  const ok=await saveCloud();
+  if(!ok){
+    alert(label+' BELUM tersimpan online. Jangan tutup halaman dahulu; periksa koneksi Backendless lalu coba simpan kembali.');
+    return false;
+  }
+  return true;
+}
+async function changeSectionPassword(section){if(!systemSettingsUnlocked){alert('Silakan buka Pengaturan Sistem terlebih dahulu.');return;}const isInterview=section==='interview';const newId=isInterview?'newInterviewPassword':'newRegistrationPassword';const confirmId=isInterview?'confirmInterviewPassword':'confirmRegistrationPassword';const label=isInterview?'Penguji / Interview':'Petugas Pendaftaran';const n=$(newId).value.trim(),c=$(confirmId).value.trim();if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password tidak sama.');db.sectionPasswords[section]=n;const ok=await persistSharedSettings('Password menu '+label);if(!ok)return;$(newId).value='';$(confirmId).value='';alert('Password menu '+label+' berhasil disimpan online dan dapat digunakan di perangkat lain.');}
+async function changeAdminPassword(){const old=$('adminOldPassword').value,n=$('adminNewPassword').value,c=$('adminConfirmPassword').value;if(old!==(db.admin.password||'123456'))return alert('Password lama tidak sesuai.');if(n.length<6)return alert('Password baru minimal 6 karakter.');if(n!==c)return alert('Konfirmasi password baru tidak sama.');db.admin.password=n;const ok=await persistSharedSettings('Password Admin');if(!ok)return;$('adminOldPassword').value=$('adminNewPassword').value=$('adminConfirmPassword').value='';alert('Password Admin berhasil disimpan online dan dapat digunakan di perangkat lain.');}
 function adminLogout(){adminUnlocked=false;$('adminLoginPanel').style.display='block';$('adminControlPanel').style.display='none';$('adminPasswordInput').value='';showPage('dashboard')}
 function unlockSystemSettings(){
   const entered=$('systemSettingsPasswordInput').value;
@@ -2726,15 +2748,17 @@ function unlockSystemSettings(){
   $('systemSettingsPasswordInput').value='';
   fillSettings();
 }
-function changeSystemSettingsPassword(){
+async function changeSystemSettingsPassword(){
   if(!systemSettingsUnlocked)return alert('Silakan buka Pengaturan Sistem terlebih dahulu.');
   const old=$('systemSettingsOldPassword').value,n=$('systemSettingsNewPassword').value,c=$('systemSettingsConfirmPassword').value;
   if(old!==(db.systemSettingsPassword||'123456'))return alert('Password lama Pengaturan Sistem tidak sesuai.');
   if(n.length<6)return alert('Password baru minimal 6 karakter.');
   if(n!==c)return alert('Konfirmasi password baru tidak sama.');
-  db.systemSettingsPassword=n;save();
+  db.systemSettingsPassword=n;
+  const ok=await persistSharedSettings('Password Pengaturan Sistem');
+  if(!ok)return;
   $('systemSettingsOldPassword').value=$('systemSettingsNewPassword').value=$('systemSettingsConfirmPassword').value='';
-  alert('Password Pengaturan Sistem berhasil diubah.');
+  alert('Password Pengaturan Sistem berhasil disimpan online dan dapat digunakan di perangkat lain.');
 }
 function updateSchoolYearBadge(){
   const school=db.school||(db.school={});
