@@ -2552,7 +2552,26 @@ function setStudentAttendance(button){
 function setStudentAdmissionStatus(button,status){if(status==='Hadir'){alert('Status Hadir hanya dapat ditetapkan melalui Menu Admin > Manajemen Edit dan Hapus Siswa.');return;}const id=button.dataset.id,s=db.students.find(x=>String(x.id)===id);if(!s)return;if(status==='Ditunda'){const note=prompt('Masukkan keterangan/alasan status Ditunda untuk siswa '+studentName(s)+':',s.admissionNote||'');if(note===null)return;if(!note.trim())return alert('Keterangan status Ditunda wajib diisi.');s.admissionNote=note.trim();}else{s.admissionNote='';}s.admissionStatus=status;save();alert('PEMBERITAHUAN\n\nStatus penerimaan siswa '+studentName(s)+' berhasil diubah menjadi: '+status+(status==='Ditunda'?'\nKeterangan: '+s.admissionNote:'')+'.');renderStudents();render();}
 function setStudentPaymentStatus(button,status){const id=button.dataset.id,s=db.students.find(x=>String(x.id)===id);if(!s)return;s.paymentStatus=status;save();alert('PEMBERITAHUAN\n\nStatus pembayaran siswa '+studentName(s)+' berhasil diubah menjadi: '+status+'.');renderStudents();render();}
 let editingStudentId=null;
-function editStudent(button){const id=button.dataset.id,s=db.students.find(x=>String(x.id)===id);if(!s)return;editingStudentId=id;$('editStudentName').value=studentName(s);$('editStudentGender').value=genderShort(s)==='—'?'':genderShort(s);$('editStudentParent').value=s.father||s.mother||s.parentName||s.namaOrangTua||'';$('editStudentSchoolOrigin').value=s.schoolOrigin||s.sekolahAsal||'';$('editStudentSchoolOriginWrap').style.display=level(s)==='SD'?'':'none';$('editStudentBirthDate').value=normalizeBirthDate(s.birthDate||s.tanggalLahir);$('editStudentModal').style.display='flex';$('editStudentName').focus()}
+function editStudent(button){
+  const id=button&&button.dataset?button.dataset.id:'';
+  const s=db.students.find(x=>String(x.id)===String(id));
+  if(!s){alert('Data siswa tidak ditemukan. Silakan muat ulang daftar siswa.');return;}
+  const modal=$('editStudentModal');
+  if(!modal){alert('Form Edit Siswa tidak ditemukan. Silakan muat ulang aplikasi.');return;}
+  // Pastikan modal berada langsung di body agar tidak tertutup/terpotong elemen lain.
+  if(modal.parentElement!==document.body)document.body.appendChild(modal);
+  editingStudentId=String(id);
+  $('editStudentName').value=studentName(s);
+  $('editStudentGender').value=genderShort(s)==='—'?'':genderShort(s);
+  $('editStudentParent').value=s.father||s.mother||s.parentName||s.namaOrangTua||'';
+  $('editStudentSchoolOrigin').value=s.schoolOrigin||s.sekolahAsal||'';
+  $('editStudentSchoolOriginWrap').style.display=level(s)==='SD'?'':'none';
+  $('editStudentBirthDate').value=normalizeBirthDate(s.birthDate||s.tanggalLahir);
+  modal.style.setProperty('display','flex','important');
+  modal.style.setProperty('z-index','2147483647','important');
+  modal.style.setProperty('pointer-events','auto','important');
+  $('editStudentName').focus();
+}
 function closeStudentEditor(){editingStudentId=null;$('editStudentModal').style.display='none'}
 function saveStudentEditor(){const s=db.students.find(x=>String(x.id)===editingStudentId);if(!s)return closeStudentEditor();const name=$('editStudentName').value.trim().toLocaleUpperCase('id-ID'),parent=$('editStudentParent').value.trim().toLocaleUpperCase('id-ID'),schoolOrigin=level(s)==='SD'?$('editStudentSchoolOrigin').value.trim().toLocaleUpperCase('id-ID'):'',gender=$('editStudentGender').value,birthDate=normalizeBirthDate($('editStudentBirthDate').value);if(!name)return alert('Nama siswa tidak boleh kosong.');if(!parent)return alert('Nama orang tua tidak boleh kosong.');if(!gender)return alert('Pilih jenis kelamin siswa.');s.gender=gender;s.jenisKelamin=gender;s.fullName=name;s.father=parent;s.parentName=parent;s.namaOrangTua=parent;s.schoolOrigin=schoolOrigin;s.sekolahAsal=schoolOrigin;s.birthDate=birthDate;s.tanggalLahir=birthDate;save();closeStudentEditor();renderStudents();renderAdminStudentActions();render();alert('Data siswa berhasil diperbarui.')}
 function deleteStudent(button){const id=button.dataset.id,s=db.students.find(x=>String(x.id)===id);if(!s)return;if(!confirm('Hapus data siswa '+studentName(s)+'?'))return;db.students=db.students.filter(x=>String(x.id)!==id);db.payments=db.payments.filter(x=>String(x.studentId)!==id);save();renderStudents();render();alert('Data siswa berhasil dihapus.')}
@@ -2563,106 +2582,7 @@ function saveWorkbook(rows,fileName,sheetName){if(!spreadsheetReady())return;con
 function normalizeImportedGender(value){const g=String(value??'').trim().toLocaleLowerCase('id-ID').replace(/[._]/g,' ').replace(/\s+/g,' ');if(['l','lk','laki','laki laki','laki-laki','lelaki','pria','male'].includes(g))return 'L';if(['p','pr','perempuan','wanita','female'].includes(g))return 'P';return ''}
 function downloadStudentTemplate(){const base=[['Nama Siswa','L/P','Tanggal Lahir','Nama Orang Tua'],['Contoh: Ahmad','L','10-01-2020','Contoh: Bapak Ahmad']];if(currentStudentImportLevel==='SD'){base[0].push('Sekolah Asal');base[1].push('Contoh: TKIP Al Madinah');}saveWorkbook(base,'Templet_Data_Calon_Siswa_'+currentStudentImportLevel+'.xlsx','Data Siswa '+currentStudentImportLevel)}
 function exportStudentsExcel(){const isSD=currentStudentImportLevel==='SD';const rows=[isSD?['Nama Siswa','L/P','Tanggal Lahir','Nama Orang Tua','Sekolah Asal']:['Nama Siswa','L/P','Tanggal Lahir','Nama Orang Tua'],...db.students.filter(s=>level(s)===currentStudentImportLevel).map(s=>{const row=[studentName(s),genderShort(s)==='—'?'':genderShort(s),formatBirthDate(s.birthDate||s.tanggalLahir)==='—'?'':formatBirthDate(s.birthDate||s.tanggalLahir),s.father||s.mother||s.parentName||s.namaOrangTua||''];if(isSD)row.push(s.schoolOrigin||s.sekolahAsal||'');return row;})];saveWorkbook(rows,'Data_Calon_Siswa_'+currentStudentImportLevel+'.xlsx','Data Siswa '+currentStudentImportLevel)}
-function importStudentsExcel(event,jenjang){
-  if(jenjang)currentStudentImportLevel=jenjang;
-  const file=event.target.files&&event.target.files[0];
-  if(!file)return;
-  if(!spreadsheetReady()){event.target.value='';return}
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
-      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-      if(!rows.length)throw new Error('File Excel kosong.');
-      const keys=Object.keys(rows[0]).map(k=>k.toLowerCase().trim());
-      if(!keys.includes('nama siswa')||!keys.includes('nama orang tua'))
-        throw new Error('Kolom wajib: Nama Siswa dan Nama Orang Tua. Gunakan templet yang disediakan.');
-
-      let added=0,duplicate=0,genderRead=0;
-      // Nama dibandingkan tanpa membedakan huruf besar/kecil dan spasi berlebih.
-      const normalizeStudentName=value=>String(value??'')
-        .normalize('NFC')
-        .trim()
-        .replace(/\s+/g,' ')
-        .toLocaleLowerCase('id-ID');
-
-      // Muat nama siswa yang sudah ada pada jenjang yang sedang diimpor.
-      const knownNames=new Set(
-        db.students
-          .filter(x=>level(x)===currentStudentImportLevel)
-          .map(x=>normalizeStudentName(studentName(x)))
-          .filter(Boolean)
-      );
-
-      rows.forEach(row=>{
-        const get=labels=>{
-          const k=Object.keys(row).find(x=>labels.includes(x.toLowerCase().trim()));
-          return k?(row[k]??''):'';
-        };
-        const rawName=String(get(['nama siswa'])??'').trim();
-        const parent=String(get(['nama orang tua'])??'').trim();
-        const schoolOrigin=currentStudentImportLevel==='SD'
-          ?String(get(['sekolah asal','sekolah asal siswa','asal sekolah'])??'').trim():'';
-        const rawGender=get(['l/p','lp','jenis kelamin','gender','jk']);
-        const rawBirth=get(['tanggal lahir','tgl lahir','tanggal_lahir','birth date','birthdate']);
-        if(!rawName)return;
-
-        const nameKey=normalizeStudentName(rawName);
-        // Tolak jika nama sudah ada di database atau muncul lebih dari sekali
-        // di dalam file Excel yang sedang diimpor.
-        if(knownNames.has(nameKey)){
-          duplicate++;
-          return;
-        }
-        knownNames.add(nameKey);
-
-        const name=rawName.replace(/\s+/g,' ').toLocaleUpperCase('id-ID');
-        const gender=normalizeImportedGender(rawGender);
-        const birthDate=normalizeBirthDate(rawBirth);
-        if(gender)genderRead++;
-
-        db.students.push({
-          id:'excel-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
-          fullName:name,
-          gender:gender,
-          jenisKelamin:gender,
-          birthDate:birthDate,
-          tanggalLahir:birthDate,
-          father:parent.toLocaleUpperCase('id-ID'),
-          parentName:parent.toLocaleUpperCase('id-ID'),
-          schoolOrigin:schoolOrigin.toLocaleUpperCase('id-ID'),
-          sekolahAsal:schoolOrigin.toLocaleUpperCase('id-ID'),
-          schoolCategory:currentStudentImportLevel,
-          registrationDate:localToday(),
-          regNo:'',
-          status:'Impor Excel'
-        });
-        added++;
-      });
-
-      save();
-      render();
-      renderStudents();
-      renderAdminStudentActions(currentStudentImportLevel);
-      renderRecap(currentStudentImportLevel);
-      alert(
-        'Impor Excel '+currentStudentImportLevel+' selesai. '+
-        added+' siswa baru berhasil ditambahkan. '+
-        duplicate+' baris ditolak karena nama siswa sudah terdaftar atau ganda di file Excel. '+
-        'Jenis kelamin terbaca otomatis: '+genderRead+' siswa. '+
-        'Pemeriksaan nama tidak membedakan huruf besar/kecil dan mengabaikan spasi berlebih.'
-      );
-    }catch(err){
-      alert(err.message||'Gagal membaca file Excel.');
-    }
-    event.target.value='';
-  };
-  reader.onerror=()=>{
-    alert('File Excel tidak dapat dibaca.');
-    event.target.value='';
-  };
-  reader.readAsArrayBuffer(file);
-}
+function importStudentsExcel(event,jenjang){if(jenjang)currentStudentImportLevel=jenjang;const file=event.target.files&&event.target.files[0];if(!file)return;if(!spreadsheetReady()){event.target.value='';return}const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});if(!rows.length)throw new Error('File Excel kosong.');const keys=Object.keys(rows[0]).map(k=>k.toLowerCase().trim());if(!keys.includes('nama siswa')||!keys.includes('nama orang tua'))throw new Error('Kolom wajib: Nama Siswa dan Nama Orang Tua. Gunakan templet yang disediakan.');let added=0,updated=0,genderRead=0;rows.forEach(row=>{const get=labels=>{const k=Object.keys(row).find(x=>labels.includes(x.toLowerCase().trim()));return k?(row[k]??'') : ''};const name=get(['nama siswa']),parent=get(['nama orang tua']),schoolOrigin=currentStudentImportLevel==='SD'?get(['sekolah asal','sekolah asal siswa','asal sekolah']):'',rawGender=get(['l/p','lp','jenis kelamin','gender','jk']),rawBirth=get(['tanggal lahir','tgl lahir','tanggal_lahir','birth date','birthdate']);if(!name)return;const gender=normalizeImportedGender(rawGender),birthDate=normalizeBirthDate(rawBirth);if(gender)genderRead++;const existing=db.students.find(x=>studentName(x).toLowerCase()===name.toLowerCase()&&level(x)===currentStudentImportLevel);if(existing){existing.father=parent.toLocaleUpperCase('id-ID');existing.parentName=parent.toLocaleUpperCase('id-ID');if(gender){existing.gender=gender;existing.jenisKelamin=gender;}if(birthDate){existing.birthDate=birthDate;existing.tanggalLahir=birthDate;}if(!existing.registrationDate)existing.registrationDate=localToday();updated++}else{db.students.push({id:'excel-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),fullName:name.toLocaleUpperCase('id-ID'),gender:gender,jenisKelamin:gender,birthDate:birthDate,tanggalLahir:birthDate,father:parent.toLocaleUpperCase('id-ID'),parentName:parent.toLocaleUpperCase('id-ID'),schoolOrigin:schoolOrigin.toLocaleUpperCase('id-ID'),sekolahAsal:schoolOrigin.toLocaleUpperCase('id-ID'),schoolCategory:currentStudentImportLevel,registrationDate:localToday(),regNo:'',status:'Impor Excel'});added++}});save();render();renderStudents();renderAdminStudentActions(currentStudentImportLevel);renderRecap(currentStudentImportLevel);alert('Impor Excel '+currentStudentImportLevel+' berhasil. '+added+' siswa ditambahkan dan '+updated+' data diperbarui. Jenis kelamin terbaca otomatis: '+genderRead+' siswa. Format tanggal lahir seperti 3/10/2020 dibaca sebagai 03-10-2020. Nilai L/LAKI-LAKI/PRIA dibaca sebagai L; P/PEREMPUAN/WANITA dibaca sebagai P.')}catch(err){alert(err.message||'Gagal membaca file Excel.')}event.target.value=''};reader.readAsArrayBuffer(file)}
 function renderFees(){$('feeRows').innerHTML=db.fees.map((f,i)=>`<tr><td>${f.level}</td><td>${esc(f.name)}</td><td>${money(f.amount)}</td><td>${esc(f.note)}</td><td><button class="btn red small" onclick="delFee('${f.id}')">Hapus</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Belum ada jenis biaya.</td></tr>'}function delFee(id){if(confirm('Hapus jenis biaya ini?')){db.fees=db.fees.filter(f=>f.id!==id);save();renderFees();fillPaymentForm();render()}}
 function fillPaymentForm(){$('payStudent').innerHTML='<option value="">-- Pilih siswa --</option>'+db.students.map(s=>`<option value="${esc(String(s.id))}">${esc(s.regNo||'')} — ${esc(studentName(s))} (${level(s)})</option>`).join('');$('payDate').value=today();$('payFee').innerHTML='<option value="">-- Pilih jenis biaya --</option>'+db.fees.map(f=>`<option value="${f.id}">${f.level} — ${esc(f.name)} (${money(f.amount)})</option>`).join('')}
 if($('payStudent')) $('payStudent').onchange=()=>{let s=db.students.find(s=>String(s.id)===$('payStudent').value);if(s){let f=db.fees.find(f=>f.level===level(s));if(f)$('payFee').value=f.id}};
@@ -2802,7 +2722,7 @@ function renderAdminStudentActions(jenjang){
     if(!body)return;
     const q=String($('adminStudentSearch'+levelName)?.value||'').toLocaleLowerCase('id-ID');
     const rows=db.students.filter(s=>level(s)===levelName&&[studentName(s),parentDisplayName(s)].some(v=>String(v||'').toLocaleLowerCase('id-ID').includes(q))).sort((a,b)=>studentName(a).localeCompare(studentName(b),'id'));
-    body.innerHTML=rows.map((s,i)=>`<tr><td>${i+1}</td><td><b>${esc(studentName(s))}</b></td><td><b>${genderShort(s)}</b></td><td>${esc(formatBirthDate(s.birthDate||s.tanggalLahir))}</td><td>${esc(parentDisplayName(s))}</td>${levelName==='SD'?`<td>${esc(s.schoolOrigin||s.sekolahAsal||"—")}</td>`:''}<td><div class="actions"><button type="button" class="btn secondary small" data-id="${esc(String(s.id))}" onclick="editStudent(this)">Edit</button><button type="button" class="btn small status-hadir" data-action="mark-attendance" data-id="${esc(String(s.id))}" onclick="setStudentAttendance(this)">Hadir</button><button class="btn red small" data-id="${esc(String(s.id))}" onclick="deleteStudent(this)">Hapus</button></div></td></tr>`).join('')||`<tr><td colspan="${levelName==='SD'?7:6}" class="empty">Belum ada data siswa ${levelName}.</td></tr>`;
+    body.innerHTML=rows.map((s,i)=>`<tr><td>${i+1}</td><td><b>${esc(studentName(s))}</b></td><td><b>${genderShort(s)}</b></td><td>${esc(formatBirthDate(s.birthDate||s.tanggalLahir))}</td><td>${esc(parentDisplayName(s))}</td>${levelName==='SD'?`<td>${esc(s.schoolOrigin||s.sekolahAsal||"—")}</td>`:''}<td><div class="actions"><button type="button" class="btn secondary small" data-id="${esc(String(s.id))}" data-action="edit-student">Edit</button><button type="button" class="btn small status-hadir" data-action="mark-attendance" data-id="${esc(String(s.id))}" onclick="setStudentAttendance(this)">Hadir</button><button class="btn red small" data-id="${esc(String(s.id))}" onclick="deleteStudent(this)">Hapus</button></div></td></tr>`).join('')||`<tr><td colspan="${levelName==='SD'?7:6}" class="empty">Belum ada data siswa ${levelName}.</td></tr>`;
   });
 }
 function deleteAllStudentsByLevel(jenjang){if(!adminUnlocked){alert('Silakan login sebagai Admin terlebih dahulu.');return;}const target=db.students.filter(s=>level(s)===jenjang);if(!target.length){alert('Tidak ada data calon siswa '+jenjang+' untuk dihapus.');return;}const label='seluruh '+target.length+' calon siswa '+jenjang;const first=confirm('PERINGATAN!\n\nAnda akan menghapus '+label+'.\n\nData siswa dan seluruh transaksi pembayaran terkait akan dihapus permanen dari penyimpanan browser ini.\n\nLanjutkan?');if(!first)return;const second=prompt('Untuk memastikan, ketik HAPUS '+jenjang+' untuk melanjutkan:');if(second!=='HAPUS '+jenjang){alert('Penghapusan dibatalkan. Teks konfirmasi tidak sesuai.');return;}const ids=new Set(target.map(s=>String(s.id)));db.students=db.students.filter(s=>level(s)!==jenjang);db.payments=db.payments.filter(p=>!ids.has(String(p.studentId)));save();renderAdminStudentActions();renderStudents();renderRecap(jenjang);render();alert('Berhasil menghapus '+target.length+' calon siswa '+jenjang+' beserta transaksi pembayaran terkait.');}
@@ -2946,6 +2866,12 @@ function closeYearEditor(){$('yearEditorModal').style.display='none';}
 function saveYearEditor(){const tk=$('yearTK').value.trim(),sd=$('yearSD').value.trim();if(!tk||!sd)return alert('Silakan isi tahun ajaran TK dan SD.');db.school=db.school||{};db.school.TK=Object.assign({},db.school.TK||{},{year:tk});db.school.SD=Object.assign({},db.school.SD||{},{year:sd});save();updateSchoolYearBadge();closeYearEditor();alert('Tahun ajaran TK dan SD berhasil diperbarui.');}
 
 document.addEventListener('click',function(event){
+  const editButton=event.target.closest('[data-action="edit-student"]');
+  if(editButton){
+    event.preventDefault();
+    editStudent(editButton);
+    return;
+  }
   const addButton=event.target.closest('[data-action="add-manual-student"]');
   if(addButton){
     event.preventDefault();
@@ -2966,7 +2892,7 @@ document.addEventListener('click',function(event){
 });
 
 </script>
-<div id="editStudentModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:9999;align-items:center;justify-content:center;padding:18px">
+<div id="editStudentModal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:#17251688;z-index:2147483647;pointer-events:auto;align-items:center;justify-content:center;padding:18px">
 <div style="background:#fff;border-radius:14px;padding:22px;width:min(440px,100%);box-shadow:0 15px 45px #0003">
 <h3 style="margin:0 0 16px;color:#285b2b">Edit Data Calon Siswa</h3>
 <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:6px">Nama Siswa</label>
